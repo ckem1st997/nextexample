@@ -157,6 +157,12 @@ export function HeaderMegaMenu() {
                         <Link href="/home/about" className={classes.link}>
                             about
                         </Link>
+                        <Link href="/home/service" className={classes.link}>
+                            service
+                        </Link>
+                        <Link href="/home/staticpages" className={classes.link}>
+                            staticpages
+                        </Link>
                         <Link href="/auth/login" className={classes.link}>
                             Login
                         </Link>
