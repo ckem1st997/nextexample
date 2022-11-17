@@ -44,7 +44,7 @@ export default function App(props: AppProps) {
   return (
     <>
       <MantineProvider withNormalizeCSS withGlobalStyles >
-      <NotificationsProvider position="top-right" zIndex={2077}>
+      <NotificationsProvider position="top-center" zIndex={2077} autoClose={4000}>
       {getLayout(<Component {...pageProps} />)}
       </NotificationsProvider>
     </MantineProvider>

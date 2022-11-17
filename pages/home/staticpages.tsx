@@ -2,7 +2,7 @@ import { Box, Button, Code, Divider, Grid, TextInput } from "@mantine/core";
 import { ResultMessageResponse } from "../../model/ResultMessageResponse";
 import { UnitDTO } from "../../model/UnitDTO";
 import { VendorDTO } from "../../model/VendorDTO";
-import { loadUnit, loadVendor } from "../../service/callapi";
+import {  Service } from "../../service/callapi";
 import PageVendor from './../../component/vendor';
 import { showNotification } from '@mantine/notifications';
 import { useState } from "react";
@@ -104,8 +104,8 @@ function show(v: any) {
 export async function getStaticProps() {
   // Fetch data from external API
   //  const res = await fetch(`http://localhost:5005/api/v1/Unit/get-drop-tree?Active=true`)
-  const data = await loadUnit();
-  const dataVendor = await loadVendor();
+  const data = await Service.loadUnit();
+  const dataVendor = await Service.loadVendor();
   // Pass data to the page via props
   // trong moi truong dev, se luon call api
   // trong moi truong porduction, sau 100s thuc hien call lai api
