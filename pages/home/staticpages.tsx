@@ -1,28 +1,116 @@
-function Page({ data }: { data: any }) {
-    console.log(data)
+import { Box, Button, Code, Divider, Grid, TextInput } from "@mantine/core";
+import { ResultMessageResponse } from "../../model/ResultMessageResponse";
+import { UnitDTO } from "../../model/UnitDTO";
+import { VendorDTO } from "../../model/VendorDTO";
+import { loadUnit, loadVendor } from "../../service/callapi";
+import PageVendor from './../../component/vendor';
+import { showNotification } from '@mantine/notifications';
+import { useState } from "react";
+import { useForm } from '@mantine/form';
+function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; dataVendor: ResultMessageResponse<VendorDTO> }) {
+  const [submittedValues, setSubmittedValues] = useState('');
+
+  const form = useForm({
+    initialValues: {
+      firstName: 'Jane',
+      lastName: 'Doe',
+      age: '33',
+    },
+
+    transformValues: (values) => ({
+      fullName: `${values.firstName} ${values.lastName}`,
+      age: Number(values.age) || 0,
+    }),
+  });
 
 
-    return (
+
+  return (
+
+    <Grid>
+      <Grid.Col span={6}>
+        <Box sx={{ maxWidth: 400 }} mx="auto">
+          <form
+            onSubmit={form.onSubmit((values) =>
+              show(values))
+            }
+          >
+            <TextInput
+              label="First name"
+              placeholder="First name"
+              {...form.getInputProps('firstName')}
+            />
+            <TextInput
+              label="Last name"
+              placeholder="Last name"
+              mt="md"
+              {...form.getInputProps('lastName')}
+            />
+            <TextInput
+              type="number"
+              label="Age"
+              placeholder="Age"
+              mt="md"
+              {...form.getInputProps('age')}
+            />
+            <Button type="submit" mt="md">
+              Submit
+            </Button>
+          </form>
+
+          {submittedValues && <Code block>{submittedValues}</Code>}
+        </Box>
         <ul>
-        {data.data.map((item:any) => (
-          <li key={item.id}>{item.id}-{item.unitName}</li>
-        ))}
-      </ul>
-    )
-    // Render data...
+          {data.data.map((item: UnitDTO) => (
+            <li key={item.id}>
+              <span>{item.id}</span>
+              <Divider my="sm" variant="dotted" />
+              <span>{item.unitName}</span>
+              <Divider my="sm" variant="dotted" />
+              <span>{item.inactive}</span>
+              <Button
+                variant="outline"
+                onClick={show}
+              >
+                Show notification
+              </Button>
+            </li>
+          ))}
+        </ul></Grid.Col>
+
+      <Grid.Col span={6}>
+        <PageVendor data={dataVendor}></PageVendor>
+
+      </Grid.Col>
+
+    </Grid>
+
+  )
+  // Render data...
 }
-
-// This gets called on every request
+function show(v: any) {
+  console.log(v);
+  if (v.age > 10)
+    showNotification({
+      title: 'Default notification',
+      message: 'Hey there, your code is awesome! 🤥',
+    })
+  else
+    showNotification({
+      title: v.fullName,
+      message: v.age,
+    })
+}
 export async function getStaticProps() {
-    // Fetch data from external API
-    const res = await fetch(`http://localhost:5005/api/v1/Unit/get-drop-tree?Active=true`)
-    const data = await res.json();
-    console.log(data)
+  // Fetch data from external API
+  //  const res = await fetch(`http://localhost:5005/api/v1/Unit/get-drop-tree?Active=true`)
+  const data = await loadUnit();
+  const dataVendor = await loadVendor();
+  // Pass data to the page via props
+  // trong moi truong dev, se luon call api
+  // trong moi truong porduction, sau 100s thuc hien call lai api
 
-    // Pass data to the page via props
-    // sau 10s thi se call lai api de update
-    // tao trang static, sau 10s thi call api va render lai chi trang nay chu khong phai toan bo cac trang
-    return { props: { data },revalidate: 10 }
+  return { props: { data, dataVendor }, revalidate: 100, }
 }
 
 export default Page

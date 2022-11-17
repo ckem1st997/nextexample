@@ -6,7 +6,6 @@ import { HeroContentLeft } from '../component/HeroContentLeft';
 
 
 export default function LayoutPages({ children }: { children: any }) {
-
   return (
     <>
       <Head>
