@@ -8,7 +8,8 @@ export const Service = {
   loadUnit,
   loadVendor,
   CreateUnit,
-  whItem
+  whItem,
+  WareHouseItemCategory
 };
 
  async function loadUnit(): Promise<ResultMessageResponse<UnitDTO>> {
@@ -51,6 +52,23 @@ async function whItem(): Promise<ResultMessageResponse<VendorDTO>> {
   const data = await res.data as Promise<ResultMessageResponse<VendorDTO>>;
   return data;
 }
+
+
+async function WareHouseItemCategory(): Promise<ResultMessageResponse<VendorDTO>> {
+  // Call an external API endpoint to get posts
+  const res = await axios.get(baseUrl + '/WareHouseItemCategory/get-drop-tree?Active=true')
+  // .then(response => {
+  //     if (!response.ok) {
+  //       throw new Error(response.statusText)
+  //     }
+  //     return response.json()
+  //   })
+  
+  const data = await res.data as Promise<ResultMessageResponse<VendorDTO>>;
+  return data;
+}
+
+
 async function CreateUnit(mode:UnitDTO): Promise<ResultMessageResponse<boolean>> {
   // Call an external API endpoint to get posts
   const res = await axios.post(baseUrl + '/Unit/create',mode)

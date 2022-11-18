@@ -105,7 +105,7 @@ export async function getStaticProps() {
   // Fetch data from external API
   //  const res = await fetch(`http://localhost:5005/api/v1/Unit/get-drop-tree?Active=true`)
   const data = await Service.whItem();
-  const dataVendor = await Service.loadVendor();
+  const dataVendor = await Service.WareHouseItemCategory();
   // Pass data to the page via props
   // trong moi truong dev, se luon call api
   // trong moi truong porduction, sau 100s thuc hien call lai api
