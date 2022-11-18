@@ -16,9 +16,11 @@ import {
     Drawer,
     Collapse,
     ScrollArea,
+    ActionIcon,
+    useMantineColorScheme,
 } from '@mantine/core';
 import { MantineLogo } from '@mantine/ds';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, useFullscreen, useNetwork, useScrollLock } from '@mantine/hooks';
 import {
     IconNotification,
     IconCode,
@@ -27,8 +29,13 @@ import {
     IconFingerprint,
     IconCoin,
     IconChevronDown,
+    IconLock,
+    IconLockOpen,
+    IconSun,
+    IconMoonStars,
 } from '@tabler/icons';
 import Link from 'next/link';
+import { ButtonToggle } from './ButtonToggle';
 const useStyles = createStyles((theme) => ({
     link: {
         display: 'flex',
@@ -143,86 +150,54 @@ export function HeaderMegaMenu() {
             </Group>
         </UnstyledButton>
     ));
-
+    const { toggle, fullscreen } = useFullscreen();
+    const [scrollLocked, setScrollLocked] = useScrollLock();
+    const networkStatus = useNetwork();
+    const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+    const dark = colorScheme === 'dark';
     return (
         <Box pb={120}>
             <Header height={60} px="md">
                 <Group position="apart" sx={{ height: '100%' }}>
                     <MantineLogo size={30} />
+                    <ButtonToggle />
+                    <ActionIcon
+                        variant="outline"
+                        color={dark ? 'yellow' : 'blue'}
+                        onClick={() => toggleColorScheme()}
+                        title="Toggle color scheme"
+                    >
+                        {dark ? <IconSun size={18} /> : <IconMoonStars size={18} />}
+                    </ActionIcon>
+                    <Link href="/home" className={classes.link}>
+                        Home
+                    </Link>
+                    <Link href="/home/about" className={classes.link}>
+                        about
+                    </Link>
+                    <Link href="/home/service" className={classes.link}>
+                        service
+                    </Link>
+                    <Link href="/home/staticpages" className={classes.link}>
+                        staticpages
+                    </Link>
+                    <Link href="/auth/login" className={classes.link}>
+                        Login
+                    </Link>
+                    <Text size="sm" color={networkStatus.online ? 'teal' : 'red'}>
+                        {networkStatus.online ? 'Online' : 'Offline'}
+                    </Text>
+                    <Button onClick={toggle} color={fullscreen ? 'red' : 'blue'}>
+                        {fullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+                    </Button>
+                    <Button
+                        onClick={() => setScrollLocked((c) => !c)}
+                        variant="outline"
+                        leftIcon={scrollLocked ? <IconLock size={16} /> : <IconLockOpen size={16} />}
+                    >
+                        {scrollLocked ? 'Unlock scroll' : 'Lock scroll'}
+                    </Button>
 
-                    <Group sx={{ height: '100%' }} spacing={0} className={classes.hiddenMobile}>
-                        <Link href="/home" className={classes.link}>
-                            Home
-                        </Link>
-                        <Link href="/home/about" className={classes.link}>
-                            about
-                        </Link>
-                        <Link href="/home/service" className={classes.link}>
-                            service
-                        </Link>
-                        <Link href="/home/staticpages" className={classes.link}>
-                            staticpages
-                        </Link>
-                        <Link href="/auth/login" className={classes.link}>
-                            Login
-                        </Link>
-                        <HoverCard width={600} position="bottom" radius="md" shadow="md" withinPortal>
-                            <HoverCard.Target>
-                                <a href="#" className={classes.link}>
-                                    <Center inline>
-                                        <Box component="span" mr={5}>
-                                            Features
-                                        </Box>
-                                        <IconChevronDown size={16} color={theme.fn.primaryColor()} />
-                                    </Center>
-                                </a>
-                            </HoverCard.Target>
-
-                            <HoverCard.Dropdown sx={{ overflow: 'hidden' }}>
-                                <Group position="apart" px="md">
-                                    <Text weight={500}>Features</Text>
-                                    <Anchor href="#" size="xs">
-                                        View all
-                                    </Anchor>
-                                </Group>
-
-                                <Divider
-                                    my="sm"
-                                    mx="-md"
-                                    color={theme.colorScheme === 'dark' ? 'dark.5' : 'gray.1'}
-                                />
-
-                                <SimpleGrid cols={2} spacing={0}>
-                                    {links}
-                                </SimpleGrid>
-
-                                <div className={classes.dropdownFooter}>
-                                    <Group position="apart">
-                                        <div>
-                                            <Text weight={500} size="sm">
-                                                Get started
-                                            </Text>
-                                            <Text size="xs" color="dimmed">
-                                                Their food sources have decreased, and their numbers
-                                            </Text>
-                                        </div>
-                                        <Button variant="default">Get started</Button>
-                                    </Group>
-                                </div>
-                            </HoverCard.Dropdown>
-                        </HoverCard>
-                        <a href="#" className={classes.link}>
-                            Learn
-                        </a>
-                        <a href="#" className={classes.link}>
-                            Academy
-                        </a>
-                    </Group>
-
-                    <Group className={classes.hiddenMobile}>
-                        <Button variant="default">Log in</Button>
-                        <Button>Sign up</Button>
-                    </Group>
 
                     <Burger opened={drawerOpened} onClick={toggleDrawer} className={classes.hiddenDesktop} />
                 </Group>
@@ -237,35 +212,6 @@ export function HeaderMegaMenu() {
                 className={classes.hiddenDesktop}
                 zIndex={1000000}
             >
-                <ScrollArea sx={{ height: 'calc(100vh - 60px)' }} mx="-md">
-                    <Divider my="sm" color={theme.colorScheme === 'dark' ? 'dark.5' : 'gray.1'} />
-
-                    <a href="#" className={classes.link}>
-                        Home
-                    </a>
-                    <UnstyledButton className={classes.link} onClick={toggleLinks}>
-                        <Center inline>
-                            <Box component="span" mr={5}>
-                                Features
-                            </Box>
-                            <IconChevronDown size={16} color={theme.fn.primaryColor()} />
-                        </Center>
-                    </UnstyledButton>
-                    <Collapse in={linksOpened}>{links}</Collapse>
-                    <a href="#" className={classes.link}>
-                        Learn
-                    </a>
-                    <a href="#" className={classes.link}>
-                        Academy
-                    </a>
-
-                    <Divider my="sm" color={theme.colorScheme === 'dark' ? 'dark.5' : 'gray.1'} />
-
-                    <Group position="center" grow pb="xl" px="md">
-                        <Button variant="default">Log in</Button>
-                        <Button>Sign up</Button>
-                    </Group>
-                </ScrollArea>
             </Drawer>
         </Box>
     );

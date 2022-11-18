@@ -1,12 +1,13 @@
 import { AppProps } from 'next/app';
 import Head from 'next/head';
-import { MantineProvider } from '@mantine/core';
+import { ColorScheme, MantineProvider, ColorSchemeProvider } from '@mantine/core';
 import { HeaderMegaMenu } from '../component/HeaderMegaMenu';
 import { HeroContentLeft } from '../component/HeroContentLeft';
 import Layout from './../component/layout';
 import LayoutPages from '../component/layoutpage';
 import axios from 'axios';
 import { NotificationsProvider } from '@mantine/notifications';
+import { useState } from 'react';
 export default function App(props: AppProps) {
   // const { Component, pageProps, router } = props;
   // let getLayout = ((page: any) => <LayoutPages>{page}</LayoutPages>);
@@ -40,14 +41,19 @@ export default function App(props: AppProps) {
   //props: Componet load, các thông số của page vừa load
   const getLayout = router.pathname.includes('/auth') ? ((page: any) => <Layout>{page}</Layout>)
     : ((page: any) => <LayoutPages>{page}</LayoutPages>);
-
+    const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
+    const toggleColorScheme = (value?: ColorScheme) =>
+      setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
+  
   return (
     <>
-      <MantineProvider withNormalizeCSS withGlobalStyles >
-      <NotificationsProvider position="top-center" zIndex={2077} autoClose={4000}>
-      {getLayout(<Component {...pageProps} />)}
-      </NotificationsProvider>
-    </MantineProvider>
+      <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
+        <MantineProvider theme={{ colorScheme }} withNormalizeCSS withGlobalStyles >
+          <NotificationsProvider position="top-center" zIndex={2077} autoClose={4000}>
+            {getLayout(<Component {...pageProps} />)}
+          </NotificationsProvider>
+        </MantineProvider>
+      </ColorSchemeProvider>
     </>
   );
 

@@ -12,18 +12,8 @@ export default function LayoutPages({ children }: { children: any }) {
         <title>Page title</title>
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
       </Head>
-
-      <MantineProvider
-        withGlobalStyles
-        withNormalizeCSS
-        theme={{
-          /** Put your mantine theme override here */
-          colorScheme: 'light',
-        }}
-      >
-        <HeaderMegaMenu />
-        {children}
-      </MantineProvider>
+      <HeaderMegaMenu />
+      {children}
     </>
   );
 }

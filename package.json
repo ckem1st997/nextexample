@@ -30,6 +30,7 @@
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.9",
     "axios": "^1.1.3",
+    "cookies-next": "^2.1.1",
     "dayjs": "^1.11.6",
     "embla-carousel-react": "^7.0.5",
     "eslint": "8.27.0",

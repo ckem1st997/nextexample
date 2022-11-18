@@ -104,7 +104,7 @@ function show(v: any) {
 export async function getStaticProps() {
   // Fetch data from external API
   //  const res = await fetch(`http://localhost:5005/api/v1/Unit/get-drop-tree?Active=true`)
-  const data = await Service.loadUnit();
+  const data = await Service.whItem();
   const dataVendor = await Service.loadVendor();
   // Pass data to the page via props
   // trong moi truong dev, se luon call api
@@ -112,5 +112,20 @@ export async function getStaticProps() {
 
   return { props: { data, dataVendor }, revalidate: 100, }
 }
-
+// let kk: ResultMessageResponse<VendorDTO> = {
+//   success: false,
+//   code: '',
+//   httpStatusCode: 0,
+//   title: '',
+//   message: '',
+//   data: [],
+//   totalCount: 0,
+//   isRedirect: false,
+//   redirectUrl: '',
+//   errors: {}
+// }
+// const [data, setData] = useState(kk);
+// useEffect(() => {
+//   Service.whItem().then(x => setData(x));
+// }, [])
 export default Page
