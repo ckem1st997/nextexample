@@ -11,6 +11,8 @@ import {
     Button,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { signIn, useSession } from 'next-auth/react';
+import router from 'next/router';
 import { Auth } from '../../extension/auth';
 import { MessageService } from './../../service/MessageService';
 
@@ -70,15 +72,42 @@ export default function AuthenticationTitle() {
 }
 
 async function login(v: any) {
-    console.log(v);
+    //   console.log(v);
+    const userName = v.userName;
+    const passWord = v.passWord;
+    
+    const reslogin = await signIn('credentials',
+        {
+            // tham số truyền vào chính là tham số bên call api
+            userName,
+            passWord,
+            callbackUrl: `/home`,
+            redirect: false,
+        }
+    );
     const auth = Auth;
-    const res = await auth.signIn(v.userName, v.passWord);
-    console.log(res)
-    if (!res.success) {
-        MessageService.Fails(res.message);
+    const check = await auth.userCheck();
+    console.log(check)
+    // if (reslogin?.error)
+    //     handleError(reslogin.error)
+    if (reslogin?.url && reslogin.ok) {
+        const auth = Auth;
+        const check = await auth.userCheck();
+        if (check) {
+            console.log("login")
+            MessageService.Success("Đăng nhập thành công !");
+            router.push(reslogin.url);
+        }
+
     }
-    else
-        MessageService.Success("Đăng nhập thành công !");
+
+    // const res = await auth.signIn(v.userName, v.passWord);
+    // console.log(res)
+    // if (!res.success) {
+    //     MessageService.Fails(res.message);
+    // }
+    // else
+    //     MessageService.Success("Đăng nhập thành công !");
 
 
     // MessageService.Fails("111111");

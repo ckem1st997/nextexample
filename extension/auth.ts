@@ -1,7 +1,7 @@
 import axios from "axios"
 import { MessageResponse, ResultMessageResponse } from "../model/ResultMessageResponse";
 import { baseUrlService } from "./env";
-import { useSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 
 
 const userEmail = `admin@example.com`
@@ -38,9 +38,9 @@ async function signIn(username: string, password: string): Promise<MessageRespon
 function userValue(): User {
     return JSON.parse(localStorage.getItem('user') || '{}');
 }
-function userCheck(): boolean {
-    var check = JSON.parse(localStorage.getItem('user') || '{}');
-    return check.username !== null && check.token !== undefined && check.role !== null;
+ async function userCheck() {
+    const session =await getSession();
+    return session;
 }
 function signOut() {
     console.log("sign out")

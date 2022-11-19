@@ -3,25 +3,25 @@ import { useRouter } from "next/router"
 import { useEffect } from "react"
 import { useState } from 'react';
 import { Auth } from "./auth";
+import { useSession } from 'next-auth/react';
+import { getSession } from 'next-auth/react';
 
 export function AuthGuard({ children }: { children: any }) {
     const router = useRouter();
-    const user = Auth;
-    const check = user.userCheck();
-    console.log(!user || !check)
+    const { data: session, status } = useSession();
     useEffect(() => {
         //auth is initialized and there is no user
-        if (!user || !check) {
+        if (!session || status !== 'authenticated') {
             // remember the page that user tried to access
             // redirect
             router.push("/auth/login")
 
         }
-    }, [router, user])
+    }, [router,status])
 
 
     // if auth initialized with a valid user show protected page
-    if (user) {
+    if (session && status === 'authenticated') {
         return <>{children}</>
     }
 

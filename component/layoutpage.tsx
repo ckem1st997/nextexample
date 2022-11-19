@@ -9,9 +9,8 @@ import { useSession } from 'next-auth/react';
 
 
 export default function LayoutPages({ children }: { children: any }) {
-  console.log(Router);
-  const { data: session } = useSession();
-  console.log(session);
+  const { data: session, status } = useSession()
+  console.log(session,status);
 
   return (
     <>
@@ -19,10 +18,10 @@ export default function LayoutPages({ children }: { children: any }) {
         <title>Page title</title>
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
       </Head>
-      {/* <AuthGuard> */}
+      <AuthGuard>
         <HeaderMegaMenu />
         {children}
-      {/* </AuthGuard> */}
+      </AuthGuard>
 
     </>
   );
