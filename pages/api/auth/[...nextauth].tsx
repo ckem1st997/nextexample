@@ -18,14 +18,15 @@ export default NextAuth({
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials, req) {
+                return JSON.stringify(credentials);
                 const res = await fetch(baseUrlService.baseUrlMaster + '/AuthorizeMaster/login', {
                     method: 'POST',
                     body: JSON.stringify(credentials),
                     headers: { "Content-Type": "application/json" }
                 })
-                const user = await res.json() ;
+                const user = await res.json();
                 // If no error and we have user data, return it
-                const jwt=user.data;
+                const jwt = user.data;
                 if (res.ok && user && user.success && user.data && jwt.jwt) {
                     return user.data;
                 };
