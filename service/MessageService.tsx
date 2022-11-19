@@ -34,7 +34,7 @@ function Success(noti: string) {
   showNotification({
     title: 'Thông báo',
     message: noti,
-    icon: <IconX />,
+    icon: <IconCheck />,
     color: 'green'
   });
 
@@ -44,7 +44,7 @@ function Fails(noti: string) {
   showNotification({
     title: 'Thông báo',
     message: noti,
-    icon: <IconCheck />,
+    icon: <IconX />,
     color: 'red'
   });
 }

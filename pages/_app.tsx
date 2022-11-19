@@ -8,6 +8,7 @@ import LayoutPages from '../component/layoutpage';
 import axios from 'axios';
 import { NotificationsProvider } from '@mantine/notifications';
 import { useState } from 'react';
+import { SessionProvider } from "next-auth/react"
 export default function App(props: AppProps) {
   // const { Component, pageProps, router } = props;
   // let getLayout = ((page: any) => <LayoutPages>{page}</LayoutPages>);
@@ -37,10 +38,10 @@ export default function App(props: AppProps) {
   //   //  return Promise.reject(err);
   //   }
   // );
-  const { Component, pageProps, router } = props;
+  const { Component, pageProps: { session, ...pageProps }, router } = props;
   //props: Componet load, các thông số của page vừa load
   const getLayout = router.pathname.includes('/auth') ? ((page: any) => <Layout>{page}</Layout>)
-    : ((page: any) => <LayoutPages>{page}</LayoutPages>);
+    : ((page: any) => <SessionProvider session={session}><LayoutPages>{page}</LayoutPages></SessionProvider>);
   const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
@@ -57,7 +58,7 @@ export default function App(props: AppProps) {
     <>
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
         <MantineProvider theme={{ colorScheme }} withNormalizeCSS withGlobalStyles >
-          <NotificationsProvider position="top-center" zIndex={2077} autoClose={4000}>
+          <NotificationsProvider position="top-center" zIndex={2077} autoClose={3000}>
             {getLayout(<Component {...pageProps} />)}
           </NotificationsProvider>
         </MantineProvider>
