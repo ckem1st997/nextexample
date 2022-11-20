@@ -6,22 +6,23 @@ import { ActionIcon, useMantineColorScheme } from '@mantine/core';
 import { useSession } from 'next-auth/react';
 import { unstable_getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
+import { GetServerSidePropsContext } from 'next';
 
 export default function About() {
 
-    const { data: session } = useSession();
-    console.log(session)
-    if (session) {
-        return (
-            <>
-                <Link href="/">Home
-                </Link>
-            </>
-        )
-    }
-    return <div>Access Denied</div>
+    // const { data: session } = useSession();
+    // console.log(session)
+    // if (session) {
+    return (
+        <>
+            <Link href="/">Home
+            </Link>
+        </>
+    )
+    //  }
+    //   return <div>Access Denied</div>
 }
-export async function getServerSideProps(context: any) {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
     return {
         props: {
             session: await unstable_getServerSession(

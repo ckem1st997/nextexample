@@ -91,16 +91,8 @@ function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; data
     </Grid>
 
   )
-  // Render data...
 }
 function show(v: any) {
-  console.log(v);
-
-  // MessageService.Success("111111");
-  // MessageService.Fails("111111");
-  // MessageService.Info("111111");
-  // MessageService.Warn("111111");
-
   Service.CreateUnit(v).then(x => {
     if (x.success)
       MessageService.Success("Thêm thành công !");

@@ -172,7 +172,7 @@ export function HeaderMegaMenu() {
               <Link
                 href="/api/auth/signin"
                
-                onClick={(e) => {
+                onClick={(e:any) => {
                   e.preventDefault()
                   signIn()
                 }}
@@ -195,16 +195,16 @@ export function HeaderMegaMenu() {
                 <br />
                 <strong>{session.user.email ?? session.user.name}</strong>
               </span>
-              <Link
-                href="/api/auth/signout"
+              <Button
+                // href="/api/auth/signout"
                
-                onClick={(e) => {
+                onClick={(e:any) => {
                   e.preventDefault()
                   signOut()
                 }}
               >
                 Sign out
-              </Link>
+              </Button>
             </>
           )}
         </p>
@@ -235,10 +235,10 @@ export function HeaderMegaMenu() {
                     <Link href="/auth/login" className={classes.link}>
                         Login
                     </Link>
-                    <Text size="sm" color={networkStatus.online ? 'teal' : 'red'}>
+                    {/* <Text size="sm" color={networkStatus.online ? 'teal' : 'red'}>
                         {networkStatus.online ? 'Online' : 'Offline'}
-                    </Text>
-                    <Button onClick={toggle} color={fullscreen ? 'red' : 'blue'}>
+                    </Text> */}
+                    {/* <Button onClick={toggle} color={fullscreen ? 'red' : 'blue'}>
                         {fullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
                     </Button>
                     <Button
@@ -247,7 +247,7 @@ export function HeaderMegaMenu() {
                         leftIcon={scrollLocked ? <IconLock size={16} /> : <IconLockOpen size={16} />}
                     >
                         {scrollLocked ? 'Unlock scroll' : 'Lock scroll'}
-                    </Button>
+                    </Button> */}
 
 
                     <Burger opened={drawerOpened} onClick={toggleDrawer} className={classes.hiddenDesktop} />

@@ -5,7 +5,7 @@ export default function Layout({ children }: { children: any }) {
         <>
             <nav>
                 nav AuthenticationTitle
-                <Link href="/home">Home</Link>
+                <Link href="/home/service">Home</Link>
             </nav>
             <main>{children}</main>
             <footer>footer</footer>

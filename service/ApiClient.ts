@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { useRouter } from 'next/router';
 
 const ApiClient = () => {
     const instance = axios.create()
@@ -19,7 +20,7 @@ const ApiClient = () => {
         },
         (error) => {
             if (error.response.status === 401) {
-                //       getLayout = ((page: any) => <Layout>{page}</Layout>);
+               console.log(error)
             }
             console.log(`error`, error)
         }

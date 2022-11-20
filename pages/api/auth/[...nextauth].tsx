@@ -21,7 +21,8 @@ export const authOptions: NextAuthOptions = {
                 let result: User = {
                     id: '',
                     email: '',
-                    name: ''
+                    name: '',
+                    image: ''
                 };
                 //   return { id: "id nè", name: 'User', email: 'user@email.com', image: '1111111' }
                 const res = await fetch(process.env.MASTER_API_URL + '/AuthorizeMaster/login', {
@@ -33,37 +34,30 @@ export const authOptions: NextAuthOptions = {
                 // If no error and we have user data, return it
                 const jwt = user.data;
                 if (res.ok && user && user.success && user.data && jwt.jwt) {
-                    console.log("data+", user.data);
+                    //  console.log("data+", user.data);
                     result.email = jwt.user.userName;
-                    result.id=jwt.user.id
-                    result.name=jwt.user.userName;
-                 //   result.data="";
-                   return { id: jwt.user.id, name: jwt.user.userName, email: jwt.user.userName, image: '1111111', user: user.data };
-                //  return result;
+                    result.id = jwt.user.id + "," + jwt.jwt;
+                    result.name = jwt.user.userName;
+                    result.image = "";
+                    return result;
                 };
-
-                // Return null if user data could not be retrieved
-                return null
+                return null;
             }
         })
     ],
     callbacks: {
-        // async signIn({ user, account, profile, email, credentials }) {
-        //     return true
-        //   },
-        async jwt({ token, user }) {
-            debugger
-            console.log("user + ", user)
-            console.log("///////////")
-            // token.accessToken = "accessToken"
-            // token.name = "test token"
+        async jwt({ token }) {
+            if (token && token.sub?.split(',').length !== undefined && token.sub?.split(',').length > 0) {
+                token.jwt = token.sub?.split(',')[1];
+                token.userId = token.sub?.split(',')[0];
+            }
             return token
         },
-        async session({ session, user }: { session: any; user: any }) {
-            console.log("user -", user)
-            // custom
-            // session.user.name = "testttttttt";
-            // session.user.old = 11111;
+        async session({ session, token }: { session: any; token: any }) {
+            if (token && token.jwt !== undefined) {
+                session.jwt = token.jwt;
+                session.userId = token.userId;
+            }
             return session
         }
     },
