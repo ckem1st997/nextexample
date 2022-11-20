@@ -1,10 +1,10 @@
-import NextAuth, { RequestInternal } from "next-auth";
+import NextAuth, { NextAuthOptions, RequestInternal, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { baseUrlService } from "../../../extension/env";
 import { ResultMessageResponse } from "../../../model/ResultMessageResponse";
 import { MessageService } from "../../../service/MessageService";
 
-export default NextAuth({
+export const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
             // The name to display on the sign in form (e.g. 'Sign in with...')
@@ -18,8 +18,13 @@ export default NextAuth({
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials, req) {
-                return JSON.stringify(credentials);
-                const res = await fetch(baseUrlService.baseUrlMaster + '/AuthorizeMaster/login', {
+                let result: User = {
+                    id: '',
+                    email: '',
+                    name: ''
+                };
+                //   return { id: "id nè", name: 'User', email: 'user@email.com', image: '1111111' }
+                const res = await fetch(process.env.MASTER_API_URL + '/AuthorizeMaster/login', {
                     method: 'POST',
                     body: JSON.stringify(credentials),
                     headers: { "Content-Type": "application/json" }
@@ -28,7 +33,13 @@ export default NextAuth({
                 // If no error and we have user data, return it
                 const jwt = user.data;
                 if (res.ok && user && user.success && user.data && jwt.jwt) {
-                    return user.data;
+                    console.log("data+", user.data);
+                    result.email = jwt.user.userName;
+                    result.id=jwt.user.id
+                    result.name=jwt.user.userName;
+                 //   result.data="";
+                   return { id: jwt.user.id, name: jwt.user.userName, email: jwt.user.userName, image: '1111111', user: user.data };
+                //  return result;
                 };
 
                 // Return null if user data could not be retrieved
@@ -37,16 +48,27 @@ export default NextAuth({
         })
     ],
     callbacks: {
-        jwt: async ({ token, user }) => {
-            user && (token.user = user);
-            return token;
+        // async signIn({ user, account, profile, email, credentials }) {
+        //     return true
+        //   },
+        async jwt({ token, user }) {
+            debugger
+            console.log("user + ", user)
+            console.log("///////////")
+            // token.accessToken = "accessToken"
+            // token.name = "test token"
+            return token
         },
-        session: async ({ session, token }: { session: any; token: any }) => {
-            session.user = token.user;  // Setting token in session
-            return session;
-        },
+        async session({ session, user }: { session: any; user: any }) {
+            console.log("user -", user)
+            // custom
+            // session.user.name = "testttttttt";
+            // session.user.old = 11111;
+            return session
+        }
     },
     pages: {
         signIn: "/auth/login", //Need to define custom login page (if using)
     },
-});
+};
+export default NextAuth(authOptions)

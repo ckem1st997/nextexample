@@ -34,6 +34,7 @@ import {
     IconSun,
     IconMoonStars,
 } from '@tabler/icons';
+import { signIn, signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { ButtonToggle } from './ButtonToggle';
 const useStyles = createStyles((theme) => ({
@@ -132,7 +133,8 @@ export function HeaderMegaMenu() {
     const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
     const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
     const { classes, theme } = useStyles();
-
+    const { data: session, status } = useSession()
+    const loading = status === "loading"
     const links = mockdata.map((item) => (
         <UnstyledButton className={classes.subLink} key={item.title}>
             <Group noWrap align="flex-start">
@@ -158,6 +160,55 @@ export function HeaderMegaMenu() {
     return (
         <Box pb={120}>
             <Header height={60} px="md">
+            <div >
+        <p
+          
+        >
+          {!session && (
+            <>
+              <span >
+                You are not signed in
+              </span>
+              <Link
+                href="/api/auth/signin"
+               
+                onClick={(e) => {
+                  e.preventDefault()
+                  signIn()
+                }}
+                className={classes.link}
+              >
+                Sign in
+              </Link>
+            </>
+          )}
+          {session?.user && (
+            <>
+              {session.user.image && (
+                <span
+                  style={{ backgroundImage: `url('${session.user.image}')` }}
+                
+                />
+              )}
+              <span >
+                <small>Signed in as</small>
+                <br />
+                <strong>{session.user.email ?? session.user.name}</strong>
+              </span>
+              <Link
+                href="/api/auth/signout"
+               
+                onClick={(e) => {
+                  e.preventDefault()
+                  signOut()
+                }}
+              >
+                Sign out
+              </Link>
+            </>
+          )}
+        </p>
+      </div>
                 <Group position="apart" sx={{ height: '100%' }}>
                     <MantineLogo size={30} />
                     <ButtonToggle />

@@ -9,8 +9,8 @@ import { useSession } from 'next-auth/react';
 
 
 export default function LayoutPages({ children }: { children: any }) {
-  const { data: session, status } = useSession()
-  console.log(session,status);
+  // const { data: session, status } = useSession()
+  // console.log(session,status);
 
   return (
     <>

@@ -9,6 +9,7 @@ import { getSession } from 'next-auth/react';
 export function AuthGuard({ children }: { children: any }) {
     const router = useRouter();
     const { data: session, status } = useSession();
+    console.log(session,status)
     useEffect(() => {
         //auth is initialized and there is no user
         if (!session || status !== 'authenticated') {
