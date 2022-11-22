@@ -56,14 +56,14 @@ export default function AuthenticationTitle({ csrfToken, providers }: { csrfToke
                         login(values))
                     }
                 >
-                    {providers &&
+                    {/* {providers &&
                         Object.values(providers).map((provider: any) => (
                             <div key={provider.name} style={{ marginBottom: 0 }}>
                                 <button onClick={() => signIn(provider.id)} >
                                     Sign in with{' '} {provider.name}
                                 </button>
                             </div>
-                        ))}
+                        ))} */}
                     <input name='csrfToken' type='hidden' defaultValue={csrfToken} />
                     <TextInput label="Email" placeholder="you@mantine.dev" required  {...form.getInputProps('userName')} />
                     <PasswordInput label="Password" placeholder="Your password" required mt="md"   {...form.getInputProps('passWord')} />
@@ -107,7 +107,7 @@ async function login(v: any) {
         const auth = Auth;
         const check = await auth.userCheck();
         if (check && check.jwt !== undefined && check.jwt.length > 0) {
-            console.log("login")
+            console.log(check)
             MessageService.Success("Đăng nhập thành công !");
             router.push(reslogin.url);
         }
@@ -118,13 +118,13 @@ async function login(v: any) {
         MessageService.Fails("Đăng nhập thất bại !");
 
 
-    // const res = await fetch('/api/get-token-example')
-    // const user = await res;
-    // console.log(user)
+    const res = await fetch('/api/get-token-example')
+    const user = await res;
+    console.log(user)
 
-    // const res1 = await fetch('/api/get-session-example')
-    // const user1 = await res1;
-    // console.log(user1)
+    const res1 = await fetch('/api/get-session')
+    const user1 = await res1;
+    console.log(user1)
     // const res = await auth.signIn(v.userName, v.passWord);
     // console.log(res)
     // if (!res.success) {

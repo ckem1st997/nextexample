@@ -3,6 +3,10 @@ import { MessageResponse, ResultMessageResponse } from "../model/ResultMessageRe
 import { baseUrlService } from "./env";
 import { getSession, useSession } from 'next-auth/react';
 import { UserAuth } from "../model/UserAuth";
+import { NextApiRequest, NextApiResponse } from 'next';
+import { getToken } from 'next-auth/jwt';
+import { authOptions } from './../pages/api/auth/[...nextauth]';
+import { unstable_getServerSession } from "next-auth";
 
 
 const userEmail = `admin@example.com`
@@ -18,7 +22,20 @@ export class User {
 export const Auth = {
     signIn,
     userCheck,
-    signOut
+    signOut,
+    userCheckSession,
+    getAuthorizationBearer
+}
+
+
+
+async function getAuthorizationBearer(req: NextApiRequest, res: NextApiResponse) {
+    const token = await unstable_getServerSession(req, res, authOptions) as UserAuth;
+    console.log("getAuthorizationBearer"+token)
+    if (token && token.jwt.length !== undefined && token.jwt.length > 0) {
+        return `Bearer ${token.jwt.trim()}`;
+    }
+    return "";
 }
 
 
@@ -44,7 +61,10 @@ async function userCheck() {
     return session;
 }
 //    const { data: session, status } = useSession();
-
+function userCheckSession() {
+    const { data: session, status } = useSession()
+    return session as UserAuth;
+}
 function signOut() {
     console.log("sign out")
     localStorage.removeItem("user")

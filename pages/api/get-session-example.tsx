@@ -12,3 +12,11 @@ export default async (req:NextApiRequest, res:NextApiResponse) => {
   }
   res.end()
 }
+
+// export const getSession = async (
+//   req:NextApiRequest,
+//   res: NextApiResponse
+// ) => {
+//   const session = await unstable_getServerSession(req, res, authOptions) as UserAuth;
+//   return session;
+// }

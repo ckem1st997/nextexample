@@ -54,7 +54,6 @@ export default function App(props: AppProps<{ session: Session }>) {
   // trang nào mà api ít thay đổi hoặc không thay đổi thì có thể dùng getStaticProps với revalidate tuỳ ý
   // trang nào mà hay dùng api, các trang detalis, login, check role thì có thể dùng getServeProps để real time api
   // chú ý phần các key phân quyền, sẽ check nếu key không hoạt động thì được phép truy cập, còn hoạt động thì mới check quyền
-
   return (
     <>
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
@@ -68,6 +67,5 @@ export default function App(props: AppProps<{ session: Session }>) {
       </ColorSchemeProvider>
     </>
   );
-
 }
 

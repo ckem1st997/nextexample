@@ -1,17 +1,28 @@
 import axios from 'axios'
 import { useRouter } from 'next/router';
 import { Auth } from '../extension/auth';
+import { getToken } from 'next-auth/jwt';
+import { NextRequest } from 'next/server';
+import { GetServerSidePropsContext, NextApiRequest } from 'next';
 
-const ApiClient = () => {
+const ApiClient = (req: GetServerSidePropsContext["req"] | NextRequest | NextApiRequest | string) => {
     const instance = axios.create()
     instance.interceptors.request.use(async (request) => {
-        const check = await Auth.userCheck();
-        if (check && check.jwt !== undefined) {
-            request.headers = {
-                Authorization: `${check.jwt}`
+        if (typeof req !== "string") {
+            const token = await getToken({ req: req, secret: process.env.SECRET });
+            if (token && token.sub?.split(',').length !== undefined && token.sub?.split(',').length > 0) {
+                const jwt = token.sub?.split(',')[1];
+                if (jwt && jwt.length > 0) {
+                    if (request.headers !== undefined)
+                        request.headers['Authorization'] = 'Bearer ' + jwt.trim();
+                }
             }
         }
-        return request
+        else if (typeof req == "string" && req && req.length > 0) {
+            if (request.headers !== undefined)
+                request.headers['Authorization'] = 'Bearer ' + req.trim();
+        }
+        return request;
     })
 
     instance.interceptors.response.use(
@@ -20,13 +31,13 @@ const ApiClient = () => {
         },
         (error) => {
             if (error.response.status === 401) {
-                console.log(error)
+                console.log(123456789)
             }
-            console.log(`error`, error)
+            return Promise.reject(error);
         }
     )
 
     return instance
 }
 
-export default ApiClient()
+export default ApiClient

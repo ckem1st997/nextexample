@@ -7,6 +7,7 @@ import Link from 'next/link'
 import styles from '../../styles/Home.module.css'
 import { authOptions } from '../api/auth/[...nextauth]';
 export default function Home() {
+  
   //  const { data: session } = useSession();
   // console.log(session)
   // return <div>none</div>;

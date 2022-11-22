@@ -6,9 +6,10 @@ import PageVendor from './../../component/vendor';
 import { showNotification } from '@mantine/notifications';
 import { useState } from "react";
 import { useForm } from '@mantine/form';
-import { Service } from './../../service/callapi';
+import { AxiosCustom, Service } from './../../service/callapi';
 import { IconX } from "@tabler/icons";
 import { MessageService } from "../../service/MessageService";
+import { GetServerSidePropsContext } from "next";
 
 
 function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; dataVendor: ResultMessageResponse<VendorDTO> }) {
@@ -85,9 +86,7 @@ function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; data
 
       <Grid.Col span={6}>
         <PageVendor data={dataVendor}></PageVendor>
-
       </Grid.Col>
-
     </Grid>
 
   )
@@ -104,12 +103,12 @@ function show(v: any) {
 }
 
 // This gets called on every request
-export async function getServerSideProps() {
-
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   // Fetch data from external API
   //  const res = await fetch(`http://localhost:5005/api/v1/Unit/get-drop-tree?Active=true`)
-  const data = await Service.loadUnit();
-  const dataVendor = await Service.loadVendor();
+  const service=new AxiosCustom(context.req);
+  const data = await service.loadUnit();
+  const dataVendor = await service.loadVendor();
   // Pass data to the page via props
   return { props: { data, dataVendor } }
 }
