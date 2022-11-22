@@ -122,7 +122,7 @@ async function login(v: any) {
     const user = await res;
     console.log(user)
 
-    const res1 = await fetch('/api/get-session')
+    const res1 = await fetch('/api/get-session-example')
     const user1 = await res1;
     console.log(user1)
     // const res = await auth.signIn(v.userName, v.passWord);

@@ -4,10 +4,12 @@ import { Auth } from '../extension/auth';
 import { getToken } from 'next-auth/jwt';
 import { NextRequest } from 'next/server';
 import { GetServerSidePropsContext, NextApiRequest } from 'next';
+import { MessageService } from './MessageService';
 
 const ApiClient = (req: GetServerSidePropsContext["req"] | NextRequest | NextApiRequest | string) => {
     const instance = axios.create()
     instance.interceptors.request.use(async (request) => {
+        debugger
         if (typeof req !== "string") {
             const token = await getToken({ req: req, secret: process.env.SECRET });
             if (token && token.sub?.split(',').length !== undefined && token.sub?.split(',').length > 0) {
@@ -31,7 +33,7 @@ const ApiClient = (req: GetServerSidePropsContext["req"] | NextRequest | NextApi
         },
         (error) => {
             if (error.response.status === 401) {
-                console.log(123456789)
+                MessageService.Fails("Bạn chưa đăng nhập !");
             }
             return Promise.reject(error);
         }

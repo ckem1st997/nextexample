@@ -1,8 +1,11 @@
 import { unstable_getServerSession } from "next-auth/next"
 import { authOptions } from "./auth/[...nextauth]"
 import type { NextApiRequest, NextApiResponse } from "next"
-export default async (req:NextApiRequest, res:NextApiResponse) => {
-  const session = await unstable_getServerSession(req, res, authOptions)
+import { UserAuth } from "../../model/UserAuth";
+import { serialize, CookieSerializeOptions } from 'cookie'
+export default async (req:NextApiRequest, res:NextApiResponse<UserAuth>) => {
+  const session = await unstable_getServerSession(req, res, authOptions);
+  console.log("jwtgetSession"+session);
   if (session) {
     // Signed in
     console.log("Session", JSON.stringify(session, null, 2))
@@ -10,13 +13,5 @@ export default async (req:NextApiRequest, res:NextApiResponse) => {
     // Not Signed in
     res.status(401)
   }
-  res.end()
+  res.end(JSON.stringify(session, null, 2))
 }
-
-// export const getSession = async (
-//   req:NextApiRequest,
-//   res: NextApiResponse
-// ) => {
-//   const session = await unstable_getServerSession(req, res, authOptions) as UserAuth;
-//   return session;
-// }

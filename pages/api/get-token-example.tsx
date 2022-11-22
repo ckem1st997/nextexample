@@ -12,5 +12,5 @@ export default async (req:NextApiRequest, res:NextApiResponse): Promise<void> =>
     // Not Signed in
     res.status(401)
   }
-  res.end()
+  res.end(JSON.stringify(token, null, 2))
 }

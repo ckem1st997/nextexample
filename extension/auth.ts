@@ -24,19 +24,19 @@ export const Auth = {
     userCheck,
     signOut,
     userCheckSession,
-    getAuthorizationBearer
+   // getAuthorizationBearer
 }
 
 
 
-async function getAuthorizationBearer(req: NextApiRequest, res: NextApiResponse) {
-    const token = await unstable_getServerSession(req, res, authOptions) as UserAuth;
-    console.log("getAuthorizationBearer"+token)
-    if (token && token.jwt.length !== undefined && token.jwt.length > 0) {
-        return `Bearer ${token.jwt.trim()}`;
-    }
-    return "";
-}
+// async function getAuthorizationBearer(req: NextApiRequest, res: NextApiResponse) {
+//     const token = await unstable_getServerSession(req, res, authOptions) as UserAuth;
+//     console.log("getAuthorizationBearer"+token)
+//     if (token && token.jwt.length !== undefined && token.jwt.length > 0) {
+//         return `Bearer ${token.jwt.trim()}`;
+//     }
+//     return "";
+// }
 
 
 async function signIn(username: string, password: string): Promise<MessageResponse<any>> {
