@@ -14,15 +14,15 @@ import {
 import { useForm } from '@mantine/form';
 import { GetServerSidePropsContext } from 'next';
 import { getCsrfToken, getProviders, signIn, useSession } from 'next-auth/react';
-import router from 'next/router';
+import router, { useRouter } from 'next/router';
 import { Auth } from '../../extension/auth';
 import { MessageService } from './../../service/MessageService';
-import useUser from './../../lib/useUser';
-import fetchJson, { FetchError } from '../../lib/fetchJson';
-import { useState } from 'react';
 
 
 export default function AuthenticationTitle({ csrfToken, providers }: { csrfToken: any; providers: any }) {
+    const router = useRouter();
+    const callbackUrl = router.query.callbackUrl?.toString()
+
 
     const form = useForm({
         initialValues: {
@@ -35,10 +35,8 @@ export default function AuthenticationTitle({ csrfToken, providers }: { csrfToke
         },
     });
 
-    const { mutateUser } = useUser({
-        redirectTo: "/home",
-        redirectIfFound: true,
-    });
+
+
 
     return (
         <Container size={420} my={40}>
@@ -57,38 +55,9 @@ export default function AuthenticationTitle({ csrfToken, providers }: { csrfToke
 
             <Paper withBorder shadow="md" p={30} mt={30} radius="md">
                 <form
-                    onSubmit={form.onSubmit(async (values) => {
-                        const body = {
-                            userName: values.userName,
-                            passWord: values.passWord
-                        };
-                        console.log(body)
-                        try {
-                            const res = await mutateUser(
-                                await fetchJson("/api/login", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify(body),
-                                }),
-                                false,
-                            );
-                            if (res?.isLoggedIn && res.jwt)
-                                MessageService.Success("Đăng nhập thành công !");
-                            else
-                                MessageService.Fails("Đăng nhập thất bại !");
-
-
-                        } catch (error) {
-                            if (error instanceof FetchError) {
-                                MessageService.Fails(error.data.message);
-                            } else {
-                                console.error("An unexpected error happened:", error);
-                            }
-                        }
+                    onSubmit={form.onSubmit((values) =>
+                        login(values, callbackUrl))
                     }
-                        //  login(values))
-                    )}
-
                 >
                     {/* {providers &&
                         Object.values(providers).map((provider: any) => (
@@ -120,17 +89,16 @@ export default function AuthenticationTitle({ csrfToken, providers }: { csrfToke
 
 
 
-async function login(v: any) {
-    //   console.log(v);
+async function login(v: any, url: string | undefined) {
+    console.log(url);
     const userName = v.userName;
     const passWord = v.passWord;
-
     const reslogin = await signIn('credentials',
         {
             // tham số truyền vào chính là tham số bên call api
             userName,
             passWord,
-            callbackUrl: `/home`,
+            callbackUrl: url ?? `/home`,
             redirect: false,
         }
     );
@@ -150,7 +118,6 @@ async function login(v: any) {
     }
     else
         MessageService.Fails("Đăng nhập thất bại !");
-
     // const res = await auth.signIn(v.userName, v.passWord);
     // console.log(res)
     // if (!res.success) {

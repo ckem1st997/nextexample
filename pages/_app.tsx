@@ -10,8 +10,6 @@ import { NotificationsProvider } from '@mantine/notifications';
 import { useState } from 'react';
 import { SessionProvider } from "next-auth/react"
 import { Session } from 'next-auth';
-import { SWRConfig } from 'swr';
-import fetchJson from '../lib/fetchJson';
 export default function App(props: AppProps<{ session: Session }>) {
   // const { Component, pageProps, router } = props;
   // let getLayout = ((page: any) => <LayoutPages>{page}</LayoutPages>);
@@ -41,9 +39,8 @@ export default function App(props: AppProps<{ session: Session }>) {
   //   //  return Promise.reject(err);
   //   }
   // );
-  // const { Component, pageProps: { session, ...pageProps }, router } = props;
+  const { Component, pageProps: { session, ...pageProps }, router } = props;
   //props: Componet load, các thông số của page vừa load
-  const { Component, pageProps, router } = props;
   const getLayout = router.pathname.includes('/auth') ? ((page: any) => <Layout>{page}</Layout>)
     : ((page: any) => <LayoutPages>{page}</LayoutPages>);
   const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
@@ -62,18 +59,9 @@ export default function App(props: AppProps<{ session: Session }>) {
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
         <MantineProvider theme={{ colorScheme }} withNormalizeCSS withGlobalStyles >
           <NotificationsProvider position="top-center" zIndex={2077} autoClose={3000}>
-            {/* <SessionProvider session={session}> */}
-            <SWRConfig
-              value={{
-                fetcher: fetchJson,
-                onError: (err) => {
-                  console.error(err);
-                },
-              }}
-            >
+            <SessionProvider session={session}>
               {getLayout(<Component {...pageProps} />)}
-              {/* </SessionProvider> */}
-            </SWRConfig>
+            </SessionProvider>
           </NotificationsProvider>
         </MantineProvider>
       </ColorSchemeProvider>

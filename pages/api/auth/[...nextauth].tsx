@@ -5,7 +5,7 @@ import { ResultMessageResponse } from "../../../model/ResultMessageResponse";
 import { MessageService } from "../../../service/MessageService";
 
 export const authOptions: NextAuthOptions = {
-    secret: process.env.SECRET,
+    secret: process.env.NEXTAUTH_SECRET,
     providers: [
         CredentialsProvider({
             // The name to display on the sign in form (e.g. 'Sign in with...')

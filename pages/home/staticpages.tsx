@@ -2,11 +2,12 @@ import { Box, Button, Code, Divider, Grid, TextInput } from "@mantine/core";
 import { ResultMessageResponse } from "../../model/ResultMessageResponse";
 import { UnitDTO } from "../../model/UnitDTO";
 import { VendorDTO } from "../../model/VendorDTO";
-import {  Service } from "../../service/callapi";
+import {  AxiosCustom, Service } from "../../service/callapi";
 import PageVendor from './../../component/vendor';
 import { showNotification } from '@mantine/notifications';
 import { useState } from "react";
 import { useForm } from '@mantine/form';
+import { GetServerSidePropsContext } from "next";
 function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; dataVendor: ResultMessageResponse<VendorDTO> }) {
   const [submittedValues, setSubmittedValues] = useState('');
 
@@ -101,19 +102,22 @@ function show(v: any) {
       message: v.age,
     })
 }
-export async function getStaticProps() {
+// không thể xác thực vì được tạo ở máy chủ
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   // Fetch data from external API
   //  const res = await fetch(`http://localhost:5005/api/v1/Unit/get-drop-tree?Active=true`)
   
     // const res1 = await fetch('/api/get-session-example')
     // const user1 = await res1;
-  const data = await fetch('http://localhost:3000/api/wareHouseItemCategory');
-  const dataVendor =await fetch('http://localhost:3000/api/item');
+    const service=new AxiosCustom(context.req);
+    const data = await service.whItem();
+    const dataVendor = await service.WareHouseItemCategory();
   // Pass data to the page via props
   // trong moi truong dev, se luon call api
   // trong moi truong porduction, sau 100s thuc hien call lai api
 
-  return { props: { data, dataVendor }, revalidate: 100, }
+ // return { props: { data, dataVendor }, revalidate: 100, }
+ return { props: { data, dataVendor } }
 }
 // let kk: ResultMessageResponse<VendorDTO> = {
 //   success: false,
