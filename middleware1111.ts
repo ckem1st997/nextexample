@@ -1,38 +1,38 @@
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getIronSession } from "iron-session/edge";
+import { sessionOptions } from "./lib/session";
 
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { Auth } from './extension/auth';
-import { authOptions } from './pages/api/auth/[...nextauth]';
-import { UserAuth } from './model/UserAuth';
-import { getToken } from 'next-auth/jwt';
+export const middleware = async (req: NextRequest) => {
+  const res = NextResponse.next();
+  const session = await getIronSession(req, res, sessionOptions);
 
-export async function middleware(request: NextRequest) {
+  // do anything with session here:
+  const { user } = session;
 
-  const token = await getToken({ req: request, secret: process.env.SECRET });
-  const requestHeaders = new Headers(request.headers)
-  // You can also set request headers in NextResponse.rewrite
+  // like mutate user:
+  // user.something = someOtherThing;
+  // or:
+  // session.user = someoneElse;
 
-  if (token && token.sub?.split(',').length !== undefined && token.sub?.split(',').length > 0) {
-    const jwt = token.sub?.split(',')[1];
-    if (jwt && jwt.length > 0) {
-      requestHeaders.append('Authorization', `Bearer ${jwt.trim()}`)
-      //   response.headers.set('Authorization', `Bearer ${jwt.trim()}`)
-    }
-  }
+  // uncomment next line to commit changes:
+  // await session.save();
+  // or maybe you want to destroy session:
+  // await session.destroy();
 
-  const response = NextResponse.next({
-    request: {
-      // New request headers
-      headers: requestHeaders,
-    },
-  })
+  console.log("from middleware", { user });
 
+  // demo:
+  // if (user?.login !== "vvo") {
+  //   return new NextResponse(null, { status: 403 }); // unauthorized to see pages inside admin/
+  // }
 
+  return res;
+};
 
-  // Set a new response header `x-hello-from-middleware2`
-  console.log(requestHeaders)
-  return response
-}
+export const config = {
+  matcher: "/home",
+};
 
 // export const config = {
 //   matcher: '/home/:path*',

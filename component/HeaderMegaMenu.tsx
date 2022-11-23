@@ -37,6 +37,9 @@ import {
 import { signIn, signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { ButtonToggle } from './ButtonToggle';
+import useUser from './../lib/useUser';
+import { useRouter } from 'next/router';
+import fetchJson from '../lib/fetchJson';
 const useStyles = createStyles((theme) => ({
     link: {
         display: 'flex',
@@ -132,9 +135,11 @@ const mockdata = [
 export function HeaderMegaMenu() {
     const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
     const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
+    const { user, mutateUser } = useUser();
+    const router = useRouter();
     const { classes, theme } = useStyles();
-    const { data: session, status } = useSession()
-    const loading = status === "loading"
+    // const { data: session, status } = useSession()
+    //  const loading = status === "loading"
     const links = mockdata.map((item) => (
         <UnstyledButton className={classes.subLink} key={item.title}>
             <Group noWrap align="flex-start">
@@ -160,8 +165,8 @@ export function HeaderMegaMenu() {
     return (
         <Box pb={120}>
             <Header height={60} px="md">
-            <div >
-        <p
+                <div >
+                    {/* <p
           
         >
           {!session && (
@@ -207,8 +212,8 @@ export function HeaderMegaMenu() {
               </Button>
             </>
           )}
-        </p>
-      </div>
+        </p> */}
+                </div>
                 <Group position="apart" sx={{ height: '100%' }}>
                     <MantineLogo size={30} />
                     <ButtonToggle />
@@ -234,6 +239,17 @@ export function HeaderMegaMenu() {
                     </Link>
                     <Link href="/auth/login" className={classes.link}>
                         Login
+                    </Link>
+                    <Link href="/auth/logout" onClick={async (e) => {
+                        e.preventDefault();
+                        mutateUser(
+                            await fetchJson("/api/logout", { method: "POST" }),
+                            false,
+                        );
+                        router.push("/auth/login");
+                    }} className={classes.link}>
+
+                        Logout
                     </Link>
                     {/* <Text size="sm" color={networkStatus.online ? 'teal' : 'red'}>
                         {networkStatus.online ? 'Online' : 'Offline'}

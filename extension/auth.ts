@@ -12,7 +12,7 @@ import { unstable_getServerSession } from "next-auth";
 const userEmail = `admin@example.com`
 const userPassword = "123456"
 const baseUrl = baseUrlService.baseUrlMaster;
-export class User {
+export class UserNextAuth {
     id!: string;
     username!: string;
     role!: number;
@@ -40,12 +40,11 @@ export const Auth = {
 
 
 async function signIn(username: string, password: string): Promise<MessageResponse<any>> {
-    const { data: session } = useSession();
     const res = await axios.post(baseUrl + '/AuthorizeMaster/login', { username, password });
     const datares = await res.data as Promise<MessageResponse<any>>;
     if ((await datares).success) {
         const user = (await datares).data;
-        var save = new User();
+        var save = new UserNextAuth();
         save.username = username;
         save.token = user.jwt;
         save.id = user.user.id;
@@ -53,7 +52,7 @@ async function signIn(username: string, password: string): Promise<MessageRespon
     }
     return datares;
 }
-function userValue(): User {
+function userValue(): UserNextAuth {
     return JSON.parse(localStorage.getItem('user') || '{}');
 }
 async function userCheck() {

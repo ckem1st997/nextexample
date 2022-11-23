@@ -17,6 +17,9 @@ import { getCsrfToken, getProviders, signIn, useSession } from 'next-auth/react'
 import router from 'next/router';
 import { Auth } from '../../extension/auth';
 import { MessageService } from './../../service/MessageService';
+import useUser from './../../lib/useUser';
+import fetchJson, { FetchError } from '../../lib/fetchJson';
+import { useState } from 'react';
 
 
 export default function AuthenticationTitle({ csrfToken, providers }: { csrfToken: any; providers: any }) {
@@ -32,8 +35,10 @@ export default function AuthenticationTitle({ csrfToken, providers }: { csrfToke
         },
     });
 
-
-
+    const { mutateUser } = useUser({
+        redirectTo: "/home",
+        redirectIfFound: true,
+    });
 
     return (
         <Container size={420} my={40}>
@@ -52,9 +57,38 @@ export default function AuthenticationTitle({ csrfToken, providers }: { csrfToke
 
             <Paper withBorder shadow="md" p={30} mt={30} radius="md">
                 <form
-                    onSubmit={form.onSubmit((values) =>
-                        login(values))
+                    onSubmit={form.onSubmit(async (values) => {
+                        const body = {
+                            userName: values.userName,
+                            passWord: values.passWord
+                        };
+                        console.log(body)
+                        try {
+                            const res = await mutateUser(
+                                await fetchJson("/api/login", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify(body),
+                                }),
+                                false,
+                            );
+                            if (res?.isLoggedIn && res.jwt)
+                                MessageService.Success("Đăng nhập thành công !");
+                            else
+                                MessageService.Fails("Đăng nhập thất bại !");
+
+
+                        } catch (error) {
+                            if (error instanceof FetchError) {
+                                MessageService.Fails(error.data.message);
+                            } else {
+                                console.error("An unexpected error happened:", error);
+                            }
+                        }
                     }
+                        //  login(values))
+                    )}
+
                 >
                     {/* {providers &&
                         Object.values(providers).map((provider: any) => (
@@ -117,14 +151,6 @@ async function login(v: any) {
     else
         MessageService.Fails("Đăng nhập thất bại !");
 
-
-    const res = await fetch('/api/get-token-example')
-    const user = await res;
-    console.log(user)
-
-    const res1 = await fetch('/api/get-session-example')
-    const user1 = await res1;
-    console.log(user1)
     // const res = await auth.signIn(v.userName, v.passWord);
     // console.log(res)
     // if (!res.success) {
