@@ -10,7 +10,6 @@ import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./auth/[...nextauth]";
 import { UserAuth } from "../../model/UserAuth";
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-    debugger
     const session = await unstable_getServerSession(req, res, authOptions) as UserAuth;
     const service=new AxiosCustom(req);
     const result = await service.whItem();

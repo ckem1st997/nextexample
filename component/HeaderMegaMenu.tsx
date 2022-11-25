@@ -42,7 +42,10 @@ import {
 import { signIn, signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { ButtonToggle } from './ButtonToggle';
-import  router  from 'next/router';
+import router from 'next/router';
+import { useCookies } from 'react-cookie';
+import { deleteCookie } from 'cookies-next';
+import { newCookie } from '../extension/helpers';
 const useStyles = createStyles((theme) => ({
     link: {
         display: 'flex',
@@ -138,16 +141,16 @@ const actions: SpotlightAction[] = [
     {
         title: 'Home',
         description: 'Get to home page',
-        onTrigger: () =>router.push("/home"),
+        onTrigger: () => router.push("/home"),
         icon: <IconHome size={18} />,
     },
     {
         title: 'Service',
         description: 'Get full information about current system status',
-        onTrigger: () =>router.push("/home/service"),
+        onTrigger: () => router.push("/home/service"),
         icon:// <Link href="/home/service" >
             <IconDashboard size={18} />
-      //  </Link>
+        //  </Link>
         ,
     },
     {
@@ -163,7 +166,9 @@ export function HeaderMegaMenu() {
     const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
     const { classes, theme } = useStyles();
     const { data: session, status } = useSession()
-    const loading = status === "loading"
+    const loading = status === "loading";
+    const [cookie, setCookie] = useCookies(["user"]);
+
     const links = mockdata.map((item) => (
         <UnstyledButton className={classes.subLink} key={item.title}>
             <Group noWrap align="flex-start">
@@ -227,9 +232,12 @@ export function HeaderMegaMenu() {
                                 <Button
                                     // href="/api/auth/signout"
 
-                                    onClick={(e: any) => {
+                                    onClick={async (e: any) => {
                                         e.preventDefault()
-                                        signOut()
+                                        await signOut({ redirect: false });
+
+                                        deleteCookie("user", newCookie);
+
                                     }}
                                 >
                                     Sign out

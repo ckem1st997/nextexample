@@ -3,12 +3,12 @@ import Link from "next/link";
 export default function Layout({ children }: { children: any }) {
     return (
         <>
-            <nav>
+            {/* <nav>
                 nav AuthenticationTitle
                 <Link href="/home/service">Home</Link>
-            </nav>
+            </nav> */}
             <main>{children}</main>
-            <footer>footer</footer>
+            {/* <footer>footer</footer> */}
         </>
     )
 }

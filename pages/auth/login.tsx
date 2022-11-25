@@ -18,6 +18,8 @@ import router, { useRouter } from 'next/router';
 import { useCookies } from 'react-cookie';
 import { Auth } from '../../extension/auth';
 import { MessageService } from './../../service/MessageService';
+import { setCookie } from 'cookies-next';
+import { newCookie } from '../../extension/helpers';
 
 
 export default function AuthenticationTitle({ csrfToken, providers }: { csrfToken: any; providers: any }) {
@@ -111,8 +113,7 @@ async function login(v: any, url: string | undefined) {
         const auth = Auth;
         const check = await auth.userCheck();
         if (check && check.jwt !== undefined && check.jwt.length > 0) {
-            console.log(check)
-          
+            setCookie('user', JSON.stringify(check), newCookie);
             MessageService.Success("Đăng nhập thành công !");
             router.push(reslogin.url);
         }

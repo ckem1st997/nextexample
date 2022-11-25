@@ -1,3 +1,4 @@
+import { randomBytes, randomUUID } from "crypto";
 import NextAuth, { NextAuthOptions, RequestInternal, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { baseUrlService } from "../../../extension/env";
@@ -6,6 +7,31 @@ import { MessageService } from "../../../service/MessageService";
 
 export const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
+    session: {
+        // Choose how you want to save the user session.
+        // The default is `"jwt"`, an encrypted JWT (JWE) stored in the session cookie.
+        // If you use an `adapter` however, we default it to `"database"` instead.
+        // You can still force a JWT session by explicitly defining `"jwt"`.
+        // When using `"database"`, the session cookie will only contain a `sessionToken` value,
+        // which is used to look up the session in the database.
+       // strategy: "database",
+      
+        // Seconds - How long until an idle session expires and is no longer valid.
+      //  maxAge: 30 * 24 * 60 * 60, // 30 days
+      // thời hạn tồn tại của cookie, sau đó sẽ tự xóa khỏi trình duyệt
+        maxAge: 50, // 30 days
+        // Seconds - Throttle how frequently to write to database to extend a session.
+        // Use it to limit write operations. Set to 0 to always update the database.
+        // Note: This option is ignored if using JSON Web Tokens
+        //cu thao tac là sẽ refesh token
+        updateAge:50, // 24 hours
+        
+        // The session token is usually either a random UUID or string, however if you
+        // need a more customized session token string, you can define your own generate function.
+        generateSessionToken: () => {
+          return randomUUID?.() ?? randomBytes(32).toString("hex")
+        }
+      },
     providers: [
         CredentialsProvider({
             // The name to display on the sign in form (e.g. 'Sign in with...')
@@ -65,6 +91,10 @@ export const authOptions: NextAuthOptions = {
     },
     pages: {
         signIn: "/auth/login", //Need to define custom login page (if using)
+        signOut: '/auth/signout',
+        error: '/auth/error', // Error code passed in query string as ?error=
+        verifyRequest: '/auth/verify-request', // (used for check email message)
+        newUser: '/auth/new-user'
     },
 };
 export default NextAuth(authOptions)

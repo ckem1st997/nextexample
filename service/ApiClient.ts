@@ -5,11 +5,12 @@ import { getToken } from 'next-auth/jwt';
 import { NextRequest } from 'next/server';
 import { GetServerSidePropsContext, NextApiRequest } from 'next';
 import { MessageService } from './MessageService';
+import { getCookie } from 'cookies-next';
+import { newCookie } from '../extension/helpers';
 
 const ApiClient = (req: GetServerSidePropsContext["req"] | NextRequest | NextApiRequest | string) => {
     const instance = axios.create()
     instance.interceptors.request.use(async (request) => {
-        debugger
         if (typeof req !== "string") {
             const token = await getToken({ req: req, secret: process.env.SECRET });
             if (token && token.sub?.split(',').length !== undefined && token.sub?.split(',').length > 0) {

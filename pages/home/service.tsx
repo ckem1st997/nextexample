@@ -84,7 +84,8 @@ function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; data
               </Button>
             </li>
           ))}
-        </ul></Grid.Col>
+        </ul>
+      </Grid.Col>
 
       <Grid.Col span={6}>
         {
@@ -108,10 +109,13 @@ function show(v: any) {
 
 // This gets called on every request
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  debugger
-console.log("cookies+ "+context.req.cookies["user"])
+  // dùng này khi đăng nhập, chuyển trang sẽ hơi khó
+  // context.res.setHeader(
+  //   'Cache-Control',
+  //   'public, s-maxage=10, stale-while-revalidate=59'
+  // )
   // Fetch data from external API
-  //  const res = await fetch(`http://localhost:5005/api/v1/Unit/get-drop-tree?Active=true`)
+  // const res = await fetch(`http://localhost:3000/api/item`)
   const service = new AxiosCustom(context.req);
   const data = await service.loadUnit();
   const dataVendor = await service.loadVendor();

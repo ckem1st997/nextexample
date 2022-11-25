@@ -1,9 +1,9 @@
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { MantineProvider } from '@mantine/core';
-import { HeaderMegaMenu } from '../component/HeaderMegaMenu';
-import { HeroContentLeft } from '../component/HeroContentLeft';
-import { AuthGuard } from './../extension/AuthGuard';
+import { HeaderMegaMenu } from './HeaderMegaMenu';
+import { HeroContentLeft } from './HeroContentLeft';
+import { AuthGuard } from '../extension/AuthGuard';
 import Router from 'next/router';
 import { useSession } from 'next-auth/react';
 
