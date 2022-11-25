@@ -15,6 +15,7 @@ import { useForm } from '@mantine/form';
 import { GetServerSidePropsContext } from 'next';
 import { getCsrfToken, getProviders, signIn, useSession } from 'next-auth/react';
 import router, { useRouter } from 'next/router';
+import { useCookies } from 'react-cookie';
 import { Auth } from '../../extension/auth';
 import { MessageService } from './../../service/MessageService';
 
@@ -91,6 +92,7 @@ export default function AuthenticationTitle({ csrfToken, providers }: { csrfToke
 
 async function login(v: any, url: string | undefined) {
     console.log(url);
+
     const userName = v.userName;
     const passWord = v.passWord;
     const reslogin = await signIn('credentials',
@@ -110,6 +112,7 @@ async function login(v: any, url: string | undefined) {
         const check = await auth.userCheck();
         if (check && check.jwt !== undefined && check.jwt.length > 0) {
             console.log(check)
+          
             MessageService.Success("Đăng nhập thành công !");
             router.push(reslogin.url);
         }

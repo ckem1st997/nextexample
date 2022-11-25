@@ -21,6 +21,7 @@ import {
 } from '@mantine/core';
 import { MantineLogo } from '@mantine/ds';
 import { useDisclosure, useFullscreen, useNetwork, useScrollLock } from '@mantine/hooks';
+import { openSpotlight, SpotlightAction, SpotlightProvider } from '@mantine/spotlight';
 import {
     IconNotification,
     IconCode,
@@ -33,10 +34,15 @@ import {
     IconLockOpen,
     IconSun,
     IconMoonStars,
+    IconFileText,
+    IconHome,
+    IconDashboard,
+    IconSearch,
 } from '@tabler/icons';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { ButtonToggle } from './ButtonToggle';
+import  router  from 'next/router';
 const useStyles = createStyles((theme) => ({
     link: {
         display: 'flex',
@@ -128,6 +134,29 @@ const mockdata = [
         description: 'Combusken battles with the intensely hot flames it spews',
     },
 ];
+const actions: SpotlightAction[] = [
+    {
+        title: 'Home',
+        description: 'Get to home page',
+        onTrigger: () =>router.push("/home"),
+        icon: <IconHome size={18} />,
+    },
+    {
+        title: 'Service',
+        description: 'Get full information about current system status',
+        onTrigger: () =>router.push("/home/service"),
+        icon:// <Link href="/home/service" >
+            <IconDashboard size={18} />
+      //  </Link>
+        ,
+    },
+    {
+        title: 'Documentation',
+        description: 'Visit documentation to lean more about all features',
+        onTrigger: () => console.log('Documentation'),
+        icon: <IconFileText size={18} />,
+    },
+];
 
 export function HeaderMegaMenu() {
     const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
@@ -160,57 +189,68 @@ export function HeaderMegaMenu() {
     return (
         <Box pb={120}>
             <Header height={60} px="md">
-            <div >
-        <p
-          
-        >
-          {!session && (
-            <>
-              <span >
-                You are not signed in
-              </span>
-              <Link
-                href="/api/auth/signin"
-               
-                onClick={(e:any) => {
-                  e.preventDefault()
-                  signIn()
-                }}
-                className={classes.link}
-              >
-                Sign in
-              </Link>
-            </>
-          )}
-          {session?.user && (
-            <>
-              {session.user.image && (
-                <span
-                  style={{ backgroundImage: `url('${session.user.image}')` }}
-                
-                />
-              )}
-              <span >
-                <small>Signed in as</small>
-                <br />
-                <strong>{session.user.email ?? session.user.name}</strong>
-              </span>
-              <Button
-                // href="/api/auth/signout"
-               
-                onClick={(e:any) => {
-                  e.preventDefault()
-                  signOut()
-                }}
-              >
-                Sign out
-              </Button>
-            </>
-          )}
-        </p>
-      </div>
+                <div >
+                    <p
+
+                    >
+                        {!session && (
+                            <>
+                                <span >
+                                    You are not signed in
+                                </span>
+                                <Link
+                                    href="/api/auth/signin"
+
+                                    onClick={(e: any) => {
+                                        e.preventDefault()
+                                        signIn()
+                                    }}
+                                    className={classes.link}
+                                >
+                                    Sign in
+                                </Link>
+                            </>
+                        )}
+                        {session?.user && (
+                            <>
+                                {session.user.image && (
+                                    <span
+                                        style={{ backgroundImage: `url('${session.user.image}')` }}
+
+                                    />
+                                )}
+                                <span >
+                                    <small>Signed in as</small>
+                                    <br />
+                                    <strong>{session.user.email ?? session.user.name}</strong>
+                                </span>
+                                <Button
+                                    // href="/api/auth/signout"
+
+                                    onClick={(e: any) => {
+                                        e.preventDefault()
+                                        signOut()
+                                    }}
+                                >
+                                    Sign out
+                                </Button>
+                            </>
+                        )}
+                    </p>
+                </div>
                 <Group position="apart" sx={{ height: '100%' }}>
                     <MantineLogo size={30} />
+                    <SpotlightProvider
+                        actions={actions}
+                        searchIcon={<IconSearch size={18} />}
+                        searchPlaceholder="Search..."
+                        shortcut="mod + shift + 1"
+                        nothingFoundMessage="Nothing found..."
+                    >
+                        <Group position="center">
+                            <Button onClick={() => openSpotlight()}>Open spotlight</Button>
+                        </Group>
+                    </SpotlightProvider>
                     <ButtonToggle />
                     <ActionIcon
                         variant="outline"

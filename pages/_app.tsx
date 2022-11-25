@@ -10,6 +10,9 @@ import { NotificationsProvider } from '@mantine/notifications';
 import { useState } from 'react';
 import { SessionProvider } from "next-auth/react"
 import { Session } from 'next-auth';
+import { RouterTransition } from '../component/RouterTransition';
+import { CookiesProvider } from 'react-cookie';
+
 export default function App(props: AppProps<{ session: Session }>) {
   // const { Component, pageProps, router } = props;
   // let getLayout = ((page: any) => <LayoutPages>{page}</LayoutPages>);
@@ -58,9 +61,12 @@ export default function App(props: AppProps<{ session: Session }>) {
     <>
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
         <MantineProvider theme={{ colorScheme }} withNormalizeCSS withGlobalStyles >
+          <RouterTransition />
           <NotificationsProvider position="top-center" zIndex={2077} autoClose={3000}>
             <SessionProvider session={session}>
-              {getLayout(<Component {...pageProps} />)}
+              <CookiesProvider>
+                {getLayout(<Component {...pageProps} />)}
+              </CookiesProvider>
             </SessionProvider>
           </NotificationsProvider>
         </MantineProvider>
