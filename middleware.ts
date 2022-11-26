@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { getIronSession } from "iron-session/edge";
 import { MessageService } from './service/MessageService';
 import { getToken } from 'next-auth/jwt';
+import { signOut } from "next-auth/react";
 
 
 export const middleware = async (req: NextRequest) => {
@@ -11,8 +12,11 @@ export const middleware = async (req: NextRequest) => {
 
   if (token && token.sub?.split(',').length !== undefined && token.sub?.split(',').length > 0) {
   }
-  else
+  else {
+   // return NextResponse.redirect(new URL('/auth/login?callbackUrl=' + req.nextUrl.pathname, req.url))
     return NextResponse.redirect(new URL('/auth/login?callbackUrl=' + req.nextUrl.pathname, req.url))
+
+  }
 
   // like mutate user:
   // user.something = someOtherThing;

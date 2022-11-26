@@ -13,19 +13,53 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { GetServerSidePropsContext } from 'next';
-import { getCsrfToken, getProviders, signIn, useSession } from 'next-auth/react';
+import { getCsrfToken, getProviders, signIn, signOut, useSession } from 'next-auth/react';
 import router, { useRouter } from 'next/router';
 import { useCookies } from 'react-cookie';
 import { Auth } from '../../extension/auth';
 import { MessageService } from './../../service/MessageService';
 import { setCookie } from 'cookies-next';
 import { newCookie } from '../../extension/helpers';
+import { useCallback, useEffect } from 'react';
+import { redirect } from 'next/dist/server/api-utils';
 
 
 export default function AuthenticationTitle({ csrfToken, providers }: { csrfToken: any; providers: any }) {
     const router = useRouter();
-    const callbackUrl = router.query.callbackUrl?.toString()
+    //  const callbackUrl = router.query.callbackUrl?.toString()
 
+    const callbackUrl = router.query.callbackUrl?.toString() ?? `/home`;
+
+    const handleSubmit = useCallback(async (v: any) => {
+        await signOut({ redirect: false });
+        const username = v.userName;
+        const password = v.passWord;
+        const reslogin = await signIn('credentials',
+            {
+                // tham số truyền vào chính là tham số bên call api
+                username,
+                password,
+                callbackUrl: callbackUrl,
+                redirect: false,
+            }
+        )
+        console.log(reslogin)
+
+        // if (reslogin?.error)
+        //     handleError(reslogin.error)
+        if (reslogin?.url && reslogin.ok) {
+           // window.location.href = callbackUrl ?? reslogin.url;
+            MessageService.SuccessTime("Đăng nhập thành công !",callbackUrl ?? reslogin.url);
+        }
+        else
+            MessageService.Fails("Đăng nhập thất bại !");
+
+    }, [])
+
+    useEffect(() => {
+        // Prefetch the dashboard page
+        router.prefetch(callbackUrl)
+    }, []);
 
     const form = useForm({
         initialValues: {
@@ -59,7 +93,7 @@ export default function AuthenticationTitle({ csrfToken, providers }: { csrfToke
             <Paper withBorder shadow="md" p={30} mt={30} radius="md">
                 <form
                     onSubmit={form.onSubmit((values) =>
-                        login(values, callbackUrl))
+                        handleSubmit(values))
                     }
                 >
                     {/* {providers &&

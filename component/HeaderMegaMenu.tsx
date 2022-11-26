@@ -42,7 +42,7 @@ import {
 import { signIn, signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { ButtonToggle } from './ButtonToggle';
-import router from 'next/router';
+import router, { useRouter } from 'next/router';
 import { useCookies } from 'react-cookie';
 import { deleteCookie } from 'cookies-next';
 import { newCookie } from '../extension/helpers';
@@ -168,6 +168,7 @@ export function HeaderMegaMenu() {
     const { data: session, status } = useSession()
     const loading = status === "loading";
     const [cookie, setCookie] = useCookies(["user"]);
+    const router = useRouter();
 
     const links = mockdata.map((item) => (
         <UnstyledButton className={classes.subLink} key={item.title}>
@@ -234,8 +235,9 @@ export function HeaderMegaMenu() {
 
                                     onClick={async (e: any) => {
                                         e.preventDefault()
-                                        await signOut({ redirect: false });
-
+                                        await signOut({ redirect: false,callbackUrl:'/' });
+                                        // console.log(h);
+                                        // router.push(h.url)
                                         deleteCookie("user", newCookie);
 
                                     }}

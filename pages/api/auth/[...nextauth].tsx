@@ -14,24 +14,24 @@ export const authOptions: NextAuthOptions = {
         // You can still force a JWT session by explicitly defining `"jwt"`.
         // When using `"database"`, the session cookie will only contain a `sessionToken` value,
         // which is used to look up the session in the database.
-       // strategy: "database",
-      
+        // strategy: "database",
+
         // Seconds - How long until an idle session expires and is no longer valid.
-      //  maxAge: 30 * 24 * 60 * 60, // 30 days
-      // thời hạn tồn tại của cookie, sau đó sẽ tự xóa khỏi trình duyệt
-        maxAge: 50, // 30 days
+        //  maxAge: 30 * 24 * 60 * 60, // 30 days
+        // thời hạn tồn tại của cookie, sau đó sẽ tự xóa khỏi trình duyệt
+        maxAge: 10, // 30 days
         // Seconds - Throttle how frequently to write to database to extend a session.
         // Use it to limit write operations. Set to 0 to always update the database.
         // Note: This option is ignored if using JSON Web Tokens
         //cu thao tac là sẽ refesh token
-        updateAge:50, // 24 hours
-        
+        //  updateAge: 5, // 24 hours
+
         // The session token is usually either a random UUID or string, however if you
         // need a more customized session token string, you can define your own generate function.
-        generateSessionToken: () => {
-          return randomUUID?.() ?? randomBytes(32).toString("hex")
-        }
-      },
+        // generateSessionToken: () => {
+        //     return randomUUID?.() ?? randomBytes(32).toString("hex")
+        // }
+    },
     providers: [
         CredentialsProvider({
             // The name to display on the sign in form (e.g. 'Sign in with...')
@@ -51,23 +51,42 @@ export const authOptions: NextAuthOptions = {
                     name: '',
                     image: ''
                 };
+
                 //   return { id: "id nè", name: 'User', email: 'user@email.com', image: '1111111' }
-                const res = await fetch(process.env.MASTER_API_URL + '/AuthorizeMaster/login', {
-                    method: 'POST',
-                    body: JSON.stringify(credentials),
-                    headers: { "Content-Type": "application/json" }
-                })
-                const user = await res.json();
-                // If no error and we have user data, return it
-                const jwt = user.data;
-                if (res.ok && user && user.success && user.data && jwt.jwt) {
-                    //  console.log("data+", user.data);
-                    result.email = jwt.user.userName;
-                    result.id = jwt.user.id + "," + jwt.jwt;
-                    result.name = jwt.user.userName;
-                    result.image = "";
-                    return result;
-                };
+                // const res = await fetch(process.env.MASTER_API_URL + '/AuthorizeMaster/login', {
+                //     method: 'POST',
+                //     body: JSON.stringify(credentials),
+                //     headers: { "Content-Type": "application/json" }
+                // })
+                //  const user = await res.json();
+                if (credentials?.username == "admin@gmail.com") {
+                    const res = {
+                        ok: true
+                    }
+                    const user = {
+                        data: {
+                            jwt: "1",
+                            user: {
+                                success: true,
+                                userName: "1",
+                                id: "1"
+                            },
+
+                        },
+                        success: true
+                    }
+                    // If no error and we have user data, return it
+                    const jwt = user.data;
+                    if (res.ok && user && user.success && user.data && jwt.jwt) {
+                        //  console.log("data+", user.data);
+                        result.email = jwt.user.userName;
+                        result.id = jwt.user.id + "," + jwt.jwt;
+                        result.name = jwt.user.userName;
+                        result.image = "";
+                        return result;
+                    };
+                }
+
                 return null;
             }
         })
@@ -85,7 +104,7 @@ export const authOptions: NextAuthOptions = {
                 session.jwt = token.jwt;
                 session.userId = token.userId;
             };
-        //    localStorage.setItem("login",session)
+            //    localStorage.setItem("login",session)
             return session
         }
     },
