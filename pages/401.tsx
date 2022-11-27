@@ -46,7 +46,7 @@ export default function NotFoundImage() {
             <SimpleGrid spacing={80} cols={2} breakpoints={[{ maxWidth: 'sm', cols: 1, spacing: 40 }]}>
                 <Image src={image} className={classes.mobileImage} />
                 <div>
-                    <Title className={classes.title}>Something is not right...</Title>
+                    <Title className={classes.title}>401</Title>
                     <Text color="dimmed" size="lg">
                         Page you are trying to open does not exist. You may have mistyped the address, or the
                         page has been moved to another URL. If you think this is an error contact support.

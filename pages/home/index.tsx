@@ -1,3 +1,4 @@
+import { useNotifications } from '@mantine/notifications';
 import { GetServerSidePropsContext } from 'next';
 import { Session, unstable_getServerSession } from 'next-auth';
 import { useSession } from 'next-auth/react';
@@ -7,11 +8,12 @@ import Link from 'next/link'
 import styles from '../../styles/Home.module.css'
 import { authOptions } from '../api/auth/[...nextauth]';
 export default function Home() {
-  
+  const s=useNotifications();
   //  const { data: session } = useSession();
   // console.log(session)
   // return <div>none</div>;
   //if (session) {
+    s.notifications
   return (
     <div className={styles.container}>
       index

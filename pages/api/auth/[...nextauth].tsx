@@ -19,7 +19,7 @@ export const authOptions: NextAuthOptions = {
         // Seconds - How long until an idle session expires and is no longer valid.
         //  maxAge: 30 * 24 * 60 * 60, // 30 days
         // thời hạn tồn tại của cookie, sau đó sẽ tự xóa khỏi trình duyệt
-        maxAge: 10, // 30 days
+        maxAge: 500, // 30 days
         // Seconds - Throttle how frequently to write to database to extend a session.
         // Use it to limit write operations. Set to 0 to always update the database.
         // Note: This option is ignored if using JSON Web Tokens
@@ -53,39 +53,40 @@ export const authOptions: NextAuthOptions = {
                 };
 
                 //   return { id: "id nè", name: 'User', email: 'user@email.com', image: '1111111' }
-                // const res = await fetch(process.env.MASTER_API_URL + '/AuthorizeMaster/login', {
-                //     method: 'POST',
-                //     body: JSON.stringify(credentials),
-                //     headers: { "Content-Type": "application/json" }
-                // })
-                //  const user = await res.json();
-                if (credentials?.username == "admin@gmail.com") {
-                    const res = {
-                        ok: true
-                    }
-                    const user = {
-                        data: {
-                            jwt: "1",
-                            user: {
-                                success: true,
-                                userName: "1",
-                                id: "1"
-                            },
+                const res = await fetch(process.env.MASTER_API_URL + '/AuthorizeMaster/login', {
+                    method: 'POST',
+                    body: JSON.stringify(credentials),
+                    headers: { "Content-Type": "application/json" }
+                })
+                 const user = await res.json();
+                 const jwt = user.data;
+                 if (res.ok && user && user.success && user.data && jwt.jwt) {
+                     //  console.log("data+", user.data);
+                     result.email = jwt.user.userName;
+                     result.id = jwt.user.id + "," + jwt.jwt;
+                     result.name = jwt.user.userName;
+                     result.image = "";
+                     return result;
+                 };
+                // if (credentials?.username == "admin@gmail.com") {
+                //     const res = {
+                //         ok: true
+                //     }
+                //     const user = {
+                //         data: {
+                //             jwt: "1",
+                //             user: {
+                //                 success: true,
+                //                 userName: "1",
+                //                 id: "1"
+                //             },
 
-                        },
-                        success: true
-                    }
-                    // If no error and we have user data, return it
-                    const jwt = user.data;
-                    if (res.ok && user && user.success && user.data && jwt.jwt) {
-                        //  console.log("data+", user.data);
-                        result.email = jwt.user.userName;
-                        result.id = jwt.user.id + "," + jwt.jwt;
-                        result.name = jwt.user.userName;
-                        result.image = "";
-                        return result;
-                    };
-                }
+                //         },
+                //         success: true
+                //     }
+                //     // If no error and we have user data, return it
+                  
+                // }
 
                 return null;
             }

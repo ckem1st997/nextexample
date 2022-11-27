@@ -14,6 +14,7 @@ export function AuthGuard({ children }: { children: any }) {
     useEffect(() => {
         //auth is initialized and there is no user
         if (!session || status !== 'authenticated' || session?.user === undefined) {
+            console.log("AuthGuard")
             router.push('/auth/login?callbackUrl=' + router.asPath)
         }
         else {

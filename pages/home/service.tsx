@@ -12,6 +12,9 @@ import { MessageService } from "../../service/MessageService";
 import { GetServerSidePropsContext } from "next";
 import { parseCookies } from './../../extension/helpers';
 import { useCookies } from "react-cookie";
+import { unstable_getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]";
+import { UserAuth } from "../../model/UserAuth";
 
 
 function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; dataVendor: ResultMessageResponse<VendorDTO> }) {
@@ -110,17 +113,39 @@ function show(v: any) {
 // This gets called on every request
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   // dùng này khi đăng nhập, chuyển trang sẽ hơi khó
-  // context.res.setHeader(
-  //   'Cache-Control',
-  //   'public, s-maxage=10, stale-while-revalidate=59'
-  // )
+  context.res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=10, stale-while-revalidate=59'
+  )
   // Fetch data from external API
   // const res = await fetch(`http://localhost:3000/api/item`)
-  const service = new AxiosCustom(context.req);
-  const data = await service.loadUnit();
-  const dataVendor = await service.loadVendor();
-  // Pass data to the page via props
-  return { props: { data, dataVendor } }
+  const session = await unstable_getServerSession(context.req, context.res, authOptions) as UserAuth;
+  if (session)
+    try {
+      const service = new AxiosCustom(session.jwt);
+      const data = await service.loadUnit();
+      const dataVendor = await service.loadVendor();
+      // Pass data to the page via props
+      return { props: { data, dataVendor } }
+    }
+    catch (error) {
+      return {
+        redirect: {
+          permanent: false,
+          destination: "/401",
+        },
+        props: {},
+      };
+    }
+  else
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/auth/login",
+      },
+      props: {},
+    };
+
 }
 
 export default Page
