@@ -59,18 +59,20 @@ export default function App(props: AppProps<{ session: Session }>) {
   // chú ý phần các key phân quyền, sẽ check nếu key không hoạt động thì được phép truy cập, còn hoạt động thì mới check quyền
   return (
     <>
-      <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
-        <MantineProvider theme={{ colorScheme }} withNormalizeCSS withGlobalStyles >
-          <RouterTransition />
-          <NotificationsProvider position="top-center" zIndex={2077} autoClose={3000}>
-            <SessionProvider session={session}>
-              <CookiesProvider>
-                {getLayout(<Component {...pageProps} />)}
-              </CookiesProvider>
-            </SessionProvider>
-          </NotificationsProvider>
-        </MantineProvider>
-      </ColorSchemeProvider>
+      {/* <div dir="rtl" > */}
+        <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
+          <MantineProvider theme={{ colorScheme }} withNormalizeCSS withGlobalStyles >
+            <RouterTransition />
+            <NotificationsProvider position="top-center" zIndex={2077} autoClose={3000}>
+              <SessionProvider session={session}>
+                <CookiesProvider>
+                  {getLayout(<Component {...pageProps} />)}
+                </CookiesProvider>
+              </SessionProvider>
+            </NotificationsProvider>
+          </MantineProvider>
+        </ColorSchemeProvider>
+      {/* </div> */}
     </>
   );
 }

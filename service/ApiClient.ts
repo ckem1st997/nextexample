@@ -35,9 +35,9 @@ const ApiClient = (req: GetServerSidePropsContext["req"] | NextRequest | NextApi
         (error) => {
             debugger
             console.log(error)
-            if (error.response.status === 401) {
-                MessageService.Fails("Bạn chưa đăng nhập !");
-            }
+            // if (error.response.status === 401) {
+            //     MessageService.Fails("Bạn chưa đăng nhập !");
+            // }
             return Promise.reject(error);
         }
     )

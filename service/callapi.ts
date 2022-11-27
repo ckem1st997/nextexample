@@ -113,10 +113,8 @@ export class AxiosCustom {
     return data;
   }
   async loadVendor(): Promise<ResultMessageResponse<VendorDTO>> {
-    debugger
     // Call an external API endpoint to get posts
     const res = await ApiClient(this.req).get(baseUrl + '/Vendor/get-drop-tree?Active=true')
-    console.log(res)
     const data = await res?.data as Promise<ResultMessageResponse<VendorDTO>>;
     return data;
   }

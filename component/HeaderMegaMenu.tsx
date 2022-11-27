@@ -235,10 +235,10 @@ export function HeaderMegaMenu() {
 
                                     onClick={async (e: any) => {
                                         e.preventDefault()
-                                        await signOut({ redirect: false,callbackUrl:'/' });
+                                        const h = await signOut({ redirect: false, callbackUrl: '/auth/login' });
                                         // console.log(h);
-                                        // router.push(h.url)
-                                        deleteCookie("user", newCookie);
+                                        router.push(h.url)
+                                        //  deleteCookie("user", newCookie);
 
                                     }}
                                 >
