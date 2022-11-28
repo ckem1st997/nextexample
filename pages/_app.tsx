@@ -12,6 +12,7 @@ import { SessionProvider } from "next-auth/react"
 import { Session } from 'next-auth';
 import { RouterTransition } from '../component/RouterTransition';
 import { CookiesProvider } from 'react-cookie';
+import LayoutCustom from './../component/layoutcustom';
 
 export default function App(props: AppProps<{ session: Session }>) {
   // const { Component, pageProps, router } = props;
@@ -45,7 +46,7 @@ export default function App(props: AppProps<{ session: Session }>) {
   const { Component, pageProps: { session, ...pageProps }, router } = props;
   //props: Componet load, các thông số của page vừa load
   const getLayout = router.pathname.includes('/auth') ? ((page: any) => <Layout>{page}</Layout>)
-    : ((page: any) => <LayoutPages>{page}</LayoutPages>);
+    :router.pathname.includes("home")? ((page: any) => <LayoutPages>{page}</LayoutPages>):((page: any) => <LayoutCustom>{page}</LayoutCustom>);
   const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));

@@ -51,7 +51,6 @@ export const authOptions: NextAuthOptions = {
                     name: '',
                     image: ''
                 };
-
                 //   return { id: "id nè", name: 'User', email: 'user@email.com', image: '1111111' }
                 const res = await fetch(process.env.MASTER_API_URL + '/AuthorizeMaster/login', {
                     method: 'POST',

@@ -15,10 +15,16 @@ import { useCookies } from "react-cookie";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { UserAuth } from "../../model/UserAuth";
+import { useRouter } from 'next/router';
 
 
 function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; dataVendor: ResultMessageResponse<VendorDTO> }) {
   const [submittedValues, setSubmittedValues] = useState('');
+  const router = useRouter();
+  if (data.httpStatusCode !== 200) {
+    MessageService.Fails("Có lỗi xảy ra, mã lỗi: !" + data.httpStatusCode);
+    router.push('/401')
+  }
 
   const form = useForm({
     initialValues: {
@@ -74,7 +80,7 @@ function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; data
         <ul>
           {
 
-            data.code === "200" ?
+            data.httpStatusCode === 200 ?
 
               (data.data.map((item: UnitDTO) => (
                 <li key={item.id}>
@@ -90,14 +96,14 @@ function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; data
                     Show notification
                   </Button>
                 </li>
-              ))) : (<p>{data.code}</p>)
+              ))) : (<p><span>Bạn không có quyền xem chức năng này !</span>{data.httpStatusCode}</p>)
           }
         </ul>
       </Grid.Col>
 
       <Grid.Col span={6}>
         {
-          dataVendor.code !== "200" ? (<p>{dataVendor.code}</p>) : (<PageVendor data={dataVendor}></PageVendor>)
+          dataVendor.httpStatusCode !== 200 ? (<p><span>Bạn không có quyền xem chức năng này !</span>{dataVendor.httpStatusCode}</p>) : (<PageVendor data={dataVendor}></PageVendor>)
         }
       </Grid.Col>
     </Grid>
@@ -115,13 +121,16 @@ function show(v: any) {
 
 }
 
-function show403(){
+function show403() {
   MessageService.Fails("Bạn không có quyền !");
 }
 
 // This gets called on every request
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   // dùng này khi đăng nhập, chuyển trang sẽ hơi khó
+  // nếu dùng cái này thì trong khoảng thời gian từ s-maxage đến s-maxage+stale-while-revalidate
+  // thì sẽ chỉ call api và time tầm 1ms, 2ms
+  // sau khoảng time đó sẽ build lại trang nên time có thể lâu, cân nhắn
   context.res.setHeader(
     'Cache-Control',
     'public, s-maxage=10, stale-while-revalidate=59'
@@ -161,23 +170,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
     catch (error: any) {
       const statusCode = error.response.status;
-      data.code = statusCode;
-      // if (statusCode === 403) {
-      //     MessageService.Fails("Bạn không có quyền thực hiện thao tác này !");
-      // }
-      // hiện đang xử lý, nếu có code != 200 thì chuyển trang khác
-      // sau sẽ từ mã lỗi mà có thể chuyển trang hoặc hiển thị những phần được phân quyền để lấy data
-      // hoặc thông báo
-      // ví dụ: call 2 api, api nào get được data sẽ show component
-      // api nào trả về 401, hoặc 403 thì sẽ hiện noti hoặc không hiện dữ liệu chỗ call api đó, hoặc chuyển trang
-      // tuỳ vào nghiệp vụ của từng trang nha
-      // return {
-      //   // redirect: {
-      //   //   permanent: false,
-      //   //   destination: "/401",
-      //   // },
-      //   props: {},
-      // };
+      data.httpStatusCode = statusCode;
     }
     try {
       // const service = new AxiosCustom(session.jwt);
@@ -188,7 +181,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
     catch (error: any) {
       const statusCode = error.response.status;
-      dataVendor.code = statusCode;
+      dataVendor.httpStatusCode = statusCode;
       // if (statusCode === 403) {
       //     MessageService.Fails("Bạn không có quyền thực hiện thao tác này !");
       // }
@@ -198,6 +191,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       // ví dụ: call 2 api, api nào get được data sẽ show component
       // api nào trả về 401, hoặc 403 thì sẽ hiện noti hoặc không hiện dữ liệu chỗ call api đó, hoặc chuyển trang
       // tuỳ vào nghiệp vụ của từng trang nha
+      // đã xong một là hiển thị theo component có thể gat được data
+      // hai là hiển thị thông báo rồi chuyển trang
+      // tùy nghiệp vụ sẽ xử lý cần thiết
       //  return {
       // redirect: {
       //   permanent: false,
