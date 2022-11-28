@@ -11,7 +11,7 @@ import { newCookie } from '../extension/helpers';
 const ApiClient = (req: GetServerSidePropsContext["req"] | NextRequest | NextApiRequest | string) => {
     const instance = axios.create()
     instance.interceptors.request.use(async (request) => {
-        if (typeof req !== "string") {
+        if (typeof req !== "string" && req) {
             const token = await getToken({ req: req, secret: process.env.SECRET });
             if (token && token.sub?.split(',').length !== undefined && token.sub?.split(',').length > 0) {
                 const jwt = token.sub?.split(',')[1];
@@ -25,7 +25,11 @@ const ApiClient = (req: GetServerSidePropsContext["req"] | NextRequest | NextApi
             if (request.headers !== undefined)
                 request.headers['Authorization'] = 'Bearer ' + req.trim();
         }
+
+
         return request;
+    }, (error) => {
+        return Promise.reject(error);
     })
 
     instance.interceptors.response.use(
@@ -33,8 +37,6 @@ const ApiClient = (req: GetServerSidePropsContext["req"] | NextRequest | NextApi
             return response
         },
         (error) => {
-            debugger
-            console.log(error)
             // if (error.response.status === 401) {
             //     MessageService.Fails("Bạn chưa đăng nhập !");
             // }

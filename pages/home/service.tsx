@@ -21,10 +21,11 @@ import { useRouter } from 'next/router';
 function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; dataVendor: ResultMessageResponse<VendorDTO> }) {
   const [submittedValues, setSubmittedValues] = useState('');
   const router = useRouter();
-  if (data.httpStatusCode !== 200) {
-    MessageService.Fails("Có lỗi xảy ra, mã lỗi: !" + data.httpStatusCode);
-    router.push('/401')
-  }
+  // console.log(router)
+  // if (data.httpStatusCode === 401 || dataVendor.httpStatusCode === 401) {
+  //   MessageService.Fails("Có lỗi xảy ra, mã lỗi: !" + data.httpStatusCode);
+  //   router.push('/401')
+  // }
 
   const form = useForm({
     initialValues: {
@@ -138,7 +139,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   // Fetch data from external API
   // const res = await fetch(`http://localhost:3000/api/item`)
   const session = await unstable_getServerSession(context.req, context.res, authOptions) as UserAuth;
-  if (session) {
+  // if (session) {
+  if (1 == 1) {
     let data: ResultMessageResponse<UnitDTO> = {
       success: false,
       code: "",
@@ -163,7 +165,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       redirectUrl: "",
       errors: {}
     }
-    const service = new AxiosCustom(session.jwt);
+    const service = new AxiosCustom(session?.jwt);
     try {
       data = await service.loadUnit();
       //  return { props: { data, dataVendor } }
@@ -171,6 +173,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     catch (error: any) {
       const statusCode = error.response.status;
       data.httpStatusCode = statusCode;
+      if (statusCode === 401)
+        return {
+          redirect: {
+            permanent: false,
+            destination: "/401",
+          },
+          props: {},
+        };
     }
     try {
       // const service = new AxiosCustom(session.jwt);
@@ -180,8 +190,17 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       // return { props: { data, dataVendor } }
     }
     catch (error: any) {
+      debugger
       const statusCode = error.response.status;
       dataVendor.httpStatusCode = statusCode;
+      if (statusCode === 401)
+        return {
+          redirect: {
+            permanent: false,
+            destination: "/401",
+          },
+          props: {},
+        };
       // if (statusCode === 403) {
       //     MessageService.Fails("Bạn không có quyền thực hiện thao tác này !");
       // }
