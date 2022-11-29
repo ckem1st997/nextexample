@@ -41,10 +41,13 @@ export const authOptions: NextAuthOptions = {
             // e.g. domain, username, password, 2FA token, etc.
             // You can pass any HTML attribute to the <input> tag through the object.
             credentials: {
-                username: { label: "Username", type: "text", placeholder: "jsmith" },
-                password: { label: "Password", type: "password" }
+                username: { label: "Username", type: "text" },
+                password: { label: "Password", type: "password" },
+                jwt: { label: "jwt", type: "text" },
+                userId: { label: "userId", type: "text" },
             },
             async authorize(credentials, req) {
+                debugger
                 let result: User = {
                     id: '',
                     email: '',
@@ -52,41 +55,29 @@ export const authOptions: NextAuthOptions = {
                     image: ''
                 };
                 //   return { id: "id nè", name: 'User', email: 'user@email.com', image: '1111111' }
-                const res = await fetch(process.env.MASTER_API_URL + '/AuthorizeMaster/login', {
-                    method: 'POST',
-                    body: JSON.stringify(credentials),
-                    headers: { "Content-Type": "application/json" }
-                })
-                 const user = await res.json();
-                 const jwt = user.data;
-                 if (res.ok && user && user.success && user.data && jwt.jwt) {
-                     //  console.log("data+", user.data);
-                     result.email = jwt.user.userName;
-                     result.id = jwt.user.id + "," + jwt.jwt;
-                     result.name = jwt.user.userName;
-                     result.image = "";
-                     return result;
-                 };
-                // if (credentials?.username == "admin@gmail.com") {
-                //     const res = {
-                //         ok: true
-                //     }
-                //     const user = {
-                //         data: {
-                //             jwt: "1",
-                //             user: {
-                //                 success: true,
-                //                 userName: "1",
-                //                 id: "1"
-                //             },
-
-                //         },
-                //         success: true
-                //     }
-                //     // If no error and we have user data, return it
-                  
-                // }
-
+                // const res = await fetch(process.env.MASTER_API_URL + '/AuthorizeMaster/login', {
+                //     method: 'POST',
+                //     body: JSON.stringify(credentials),
+                //     headers: { "Content-Type": "application/json" }
+                // })
+                //  const user = await res.json();
+                //  const jwt = user.data;
+                //  if (res.ok && user && user.success && user.data && jwt.jwt) {
+                //      //  console.log("data+", user.data);
+                //      result.email = jwt.user.userName;
+                //      result.id = jwt.user.id + "," + jwt.jwt;
+                //      result.name = jwt.user.userName;
+                //      result.image = "";
+                //      return result;
+                //  };
+                if (credentials && credentials.jwt && credentials.username && credentials.userId) {
+                    //  console.log("data+", user.data);
+                    result.email = credentials.username
+                    result.id = credentials.userId + "," + credentials.jwt;
+                    result.name =credentials.username;
+                    result.image = "";
+                    return result;
+                };
                 return null;
             }
         })

@@ -28,7 +28,8 @@ export const MessageService = {
   Warn,
   LoadingShow,
   LoadingHidden,
-  SuccessTime
+  SuccessTimeonClose,
+  SuccessTimeonOpen
 };
 
 function Success(noti: string) {
@@ -40,9 +41,20 @@ function Success(noti: string) {
   });
 
 }
-function SuccessTime(noti: string, url:string) {
+function SuccessTimeonClose(noti: string, url:string) {
   showNotification({
     onClose: () => {window.location.href = url},
+    autoClose: 1000,
+    title: 'Thông báo',
+    message: noti,
+    icon: <IconCheck />,
+    color: 'green'
+  });
+
+}
+function SuccessTimeonOpen(noti: string, url:string) {
+  showNotification({
+    onOpen: () => {window.location.href = url},
     autoClose: 1000,
     title: 'Thông báo',
     message: noti,

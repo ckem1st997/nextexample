@@ -22,9 +22,13 @@ import { setCookie } from 'cookies-next';
 import { newCookie } from '../../extension/helpers';
 import { useCallback, useEffect } from 'react';
 import { redirect } from 'next/dist/server/api-utils';
+import { MessageResponse, ResultMessageResponse } from '../../model/ResultMessageResponse';
+import { showNotification } from '@mantine/notifications';
+import { IconCheck } from '@tabler/icons';
 
 
-export default function AuthenticationTitle({ csrfToken, providers }: { csrfToken: any; providers: any }) {
+export default function AuthenticationTitle({ csrfToken, providers, url }: { csrfToken: any; providers: any; url: string }) {
+    // đây là phần xử lý bên client
     const router = useRouter();
     //  const callbackUrl = router.query.callbackUrl?.toString()
 
@@ -34,25 +38,52 @@ export default function AuthenticationTitle({ csrfToken, providers }: { csrfToke
         await signOut({ redirect: false });
         const username = v.userName;
         const password = v.passWord;
-        const reslogin = await signIn('credentials',
-            {
-                // tham số truyền vào chính là tham số bên call api
-                username,
-                password,
-                callbackUrl: callbackUrl,
-                redirect: false,
-            }
-        )
-        console.log(reslogin)
+        const data = {
+            username: username,
+            password: password
+        }
+        const res = await fetch(url + '/AuthorizeMaster/login', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: { "Content-Type": "application/json" }
+        })
+        const user = await res?.json() as Promise<MessageResponse<any>>;
+        const jwt = (await user).data;
+        if (res.ok && user && (await user).success && (await user).data && jwt.jwt) {
 
-        // if (reslogin?.error)
-        //     handleError(reslogin.error)
-        if (reslogin?.url && reslogin.ok) {
-           // window.location.href = callbackUrl ?? reslogin.url;
-            MessageService.SuccessTime("Đăng nhập thành công !",callbackUrl ?? reslogin.url);
+            const reslogin = await signIn('credentials',
+                {
+                    // tham số truyền vào chính là tham số bên call api
+                    username,
+                    password,
+                    userId: jwt.user.id,
+                    jwt: jwt.jwt,
+                    callbackUrl: callbackUrl,
+                    redirect: false,
+                }
+            )
+            console.log(reslogin)
+
+            // if (reslogin?.error)
+            //     handleError(reslogin.error)
+            if (reslogin?.url && reslogin.ok) {
+                // window.location.href = callbackUrl ?? reslogin.url;
+                MessageService.SuccessTimeonClose("Đăng nhập thành công !", callbackUrl ?? reslogin.url);
+                // showNotification({
+                //     onOpen: () => {router.push(callbackUrl ?? reslogin.url)},
+                //     autoClose: 1000,
+                //     title: 'Thông báo',
+                //     message: "Đăng nhập thành công !",
+                //     icon: <IconCheck />,
+                //     color: 'green'
+                //   });
+            }
+            else
+                MessageService.Fails("Đăng nhập thất bại !");
         }
         else
-            MessageService.Fails("Đăng nhập thất bại !");
+            MessageService.Fails((await user).message ?? ((await user).errors?.msg[0]));
+
 
     }, [])
 
@@ -180,12 +211,16 @@ async function login(v: any, url: string | undefined) {
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
+    // đây là phần xử lý bên service
     const providers = await getProviders()
-    const csrfToken = await getCsrfToken(context)
+    const csrfToken = await getCsrfToken(context);
+    const url = process.env.MASTER_API_URL;
+    debugger
     return {
         props: {
             providers,
-            csrfToken
+            csrfToken,
+            url
         },
     }
 }
