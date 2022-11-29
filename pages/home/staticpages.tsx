@@ -2,25 +2,42 @@ import { Box, Button, Code, Divider, Grid, TextInput } from "@mantine/core";
 import { ResultMessageResponse } from "../../model/ResultMessageResponse";
 import { UnitDTO } from "../../model/UnitDTO";
 import { VendorDTO } from "../../model/VendorDTO";
-import {  AxiosCustom, Service } from "../../service/callapi";
 import PageVendor from './../../component/vendor';
-import { showNotification } from '@mantine/notifications';
+import { showNotification, useNotifications } from '@mantine/notifications';
 import { useState } from "react";
 import { useForm } from '@mantine/form';
+import { AxiosCustom, Service } from './../../service/callapi';
+import { IconX } from "@tabler/icons";
+import { MessageService } from "../../service/MessageService";
 import { GetServerSidePropsContext } from "next";
+import { parseCookies } from './../../extension/helpers';
+import { useCookies } from "react-cookie";
+import { unstable_getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]";
+import { UserAuth } from "../../model/UserAuth";
+import { useRouter } from 'next/router';
+
+
 function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; dataVendor: ResultMessageResponse<VendorDTO> }) {
   const [submittedValues, setSubmittedValues] = useState('');
+  const router = useRouter();
+  // console.log(router)
+  // if (data.httpStatusCode === 401 || dataVendor.httpStatusCode === 401) {
+  //   MessageService.Fails("Có lỗi xảy ra, mã lỗi: !" + data.httpStatusCode);
+  //   router.push('/401')
+  // }
 
   const form = useForm({
     initialValues: {
-      firstName: 'Jane',
-      lastName: 'Doe',
-      age: '33',
+      id: '',
+      unitName: '',
+      inactive: true,
     },
 
     transformValues: (values) => ({
-      fullName: `${values.firstName} ${values.lastName}`,
-      age: Number(values.age) || 0,
+      id: '',
+      unitName: `${values.unitName}`,
+      inactive: values.inactive || true,
     }),
   });
 
@@ -39,20 +56,20 @@ function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; data
             <TextInput
               label="First name"
               placeholder="First name"
-              {...form.getInputProps('firstName')}
+              {...form.getInputProps('id')}
             />
             <TextInput
-              label="Last name"
+              label="unitName"
               placeholder="Last name"
               mt="md"
-              {...form.getInputProps('lastName')}
+              {...form.getInputProps('unitName')}
             />
             <TextInput
               type="number"
-              label="Age"
+              label="inactive"
               placeholder="Age"
               mt="md"
-              {...form.getInputProps('age')}
+              {...form.getInputProps('inactive')}
             />
             <Button type="submit" mt="md">
               Submit
@@ -62,77 +79,124 @@ function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; data
           {submittedValues && <Code block>{submittedValues}</Code>}
         </Box>
         <ul>
-          {data.data.map((item: UnitDTO) => (
-            <li key={item.id}>
-              <span>{item.id}</span>
-              <Divider my="sm" variant="dotted" />
-              <span>{item.unitName}</span>
-              <Divider my="sm" variant="dotted" />
-              <span>{item.inactive}</span>
-              <Button
-                variant="outline"
-                onClick={show}
-              >
-                Show notification
-              </Button>
-            </li>
-          ))}
-        </ul></Grid.Col>
+          {
 
-      <Grid.Col span={6}>
-        <PageVendor data={dataVendor}></PageVendor>
+            data.httpStatusCode === 200 ?
 
+              (data.data.map((item: UnitDTO) => (
+                <li key={item.id}>
+                  <span>{item.id}</span>
+                  <Divider my="sm" variant="dotted" />
+                  <span>{item.unitName}</span>
+                  <Divider my="sm" variant="dotted" />
+                  <span>{item.inactive}</span>
+                  <Button
+                    variant="outline"
+                    onClick={show}
+                  >
+                    Show notification
+                  </Button>
+                </li>
+              ))) : (<p><span>Bạn không có quyền xem chức năng này !</span>{data.httpStatusCode}</p>)
+          }
+        </ul>
       </Grid.Col>
 
+      <Grid.Col span={6}>
+        {
+          dataVendor.httpStatusCode !== 200 ? (<p><span>Bạn không có quyền xem chức năng này !</span>{dataVendor.httpStatusCode}</p>) : (<PageVendor data={dataVendor}></PageVendor>)
+        }
+      </Grid.Col>
     </Grid>
 
   )
-  // Render data...
 }
 function show(v: any) {
-  console.log(v);
-  if (v.age > 10)
-    showNotification({
-      title: 'Default notification',
-      message: 'Hey there, your code is awesome! 🤥',
-    })
-  else
-    showNotification({
-      title: v.fullName,
-      message: v.age,
-    })
-}
-// không thể xác thực vì được tạo ở máy chủ
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  // Fetch data from external API
-  //  const res = await fetch(`http://localhost:5005/api/v1/Unit/get-drop-tree?Active=true`)
-  
-    // const res1 = await fetch('/api/get-session-example')
-    // const user1 = await res1;
-    const service=new AxiosCustom(context.req);
-    const data = await service.whItem();
-    const dataVendor = await service.WareHouseItemCategory();
-  // Pass data to the page via props
-  // trong moi truong dev, se luon call api
-  // trong moi truong porduction, sau 100s thuc hien call lai api
+  Service.CreateUnit(v).then(x => {
+    if (x.success)
+      MessageService.Success("Thêm thành công !");
 
- // return { props: { data, dataVendor }, revalidate: 100, }
- return { props: { data, dataVendor } }
+    else
+      MessageService.Fails("Thêm thất bại !");
+  });
+
 }
-// let kk: ResultMessageResponse<VendorDTO> = {
-//   success: false,
-//   code: '',
-//   httpStatusCode: 0,
-//   title: '',
-//   message: '',
-//   data: [],
-//   totalCount: 0,
-//   isRedirect: false,
-//   redirectUrl: '',
-//   errors: {}
-// }
-// const [data, setData] = useState(kk);
-// useEffect(() => {
-//   Service.whItem().then(x => setData(x));
-// }, [])
+
+function show403() {
+  MessageService.Fails("Bạn không có quyền !");
+}
+
+// This gets called on every request
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const session = await unstable_getServerSession(context.req, context.res, authOptions) as UserAuth;
+  if (1 == 1) {
+    let data: ResultMessageResponse<UnitDTO> = {
+      success: false,
+      code: "",
+      httpStatusCode: 0,
+      title: "",
+      message: "",
+      data: [],
+      totalCount: 0,
+      isRedirect: false,
+      redirectUrl: "",
+      errors: {}
+    };
+    let dataVendor: ResultMessageResponse<VendorDTO> = {
+      success: false,
+      code: "",
+      httpStatusCode: 0,
+      title: "",
+      message: "",
+      data: [],
+      totalCount: 0,
+      isRedirect: false,
+      redirectUrl: "",
+      errors: {}
+    }
+    const service = new AxiosCustom(session?.jwt);
+    try {
+      data = await service.loadUnit();
+    }
+    catch (error: any) {
+      const statusCode = error.response.status;
+      data.httpStatusCode = statusCode;
+      if (statusCode === 401)
+        return {
+          redirect: {
+            permanent: false,
+            destination: "/401",
+          },
+          props: {},
+        };
+    }
+    try {
+      dataVendor = await service.loadVendor();
+    }
+    catch (error: any) {
+      debugger
+      const statusCode = error.response.status;
+      dataVendor.httpStatusCode = statusCode;
+      if (statusCode === 401)
+        return {
+          redirect: {
+            permanent: false,
+            destination: "/401",
+          },
+          props: {},
+        };
+    }
+    return { props: { data, dataVendor } }
+  }
+
+  else
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/auth/login",
+      },
+      props: {},
+    };
+}
+
 export default Page
