@@ -128,7 +128,18 @@ function show403() {
 
 // This gets called on every request
 export async function getServerSideProps(context: GetServerSidePropsContext) {
+  // dùng này khi đăng nhập, chuyển trang sẽ hơi khó
+  // nếu dùng cái này thì trong khoảng thời gian từ s-maxage đến s-maxage+stale-while-revalidate
+  // thì sẽ chỉ call api và time tầm 1ms, 2ms
+  // sau khoảng time đó sẽ build lại trang nên time có thể lâu, cân nhắn
+  context.res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=10, stale-while-revalidate=59'
+  )
+  // Fetch data from external API
+  // const res = await fetch(`http://localhost:3000/api/item`)
   const session = await unstable_getServerSession(context.req, context.res, authOptions) as UserAuth;
+  // if (session) {
   if (1 == 1) {
     let data: ResultMessageResponse<UnitDTO> = {
       success: false,
@@ -157,6 +168,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     const service = new AxiosCustom(session?.jwt);
     try {
       data = await service.loadUnit();
+      //  return { props: { data, dataVendor } }
     }
     catch (error: any) {
       const statusCode = error.response.status;
@@ -171,7 +183,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         };
     }
     try {
+      // const service = new AxiosCustom(session.jwt);
+      // const data = await service.loadUnit();
       dataVendor = await service.loadVendor();
+      // Pass data to the page via props
+      // return { props: { data, dataVendor } }
     }
     catch (error: any) {
       debugger
@@ -185,6 +201,25 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           },
           props: {},
         };
+      // if (statusCode === 403) {
+      //     MessageService.Fails("Bạn không có quyền thực hiện thao tác này !");
+      // }
+      // hiện đang xử lý, nếu có code != 200 thì chuyển trang khác
+      // sau sẽ từ mã lỗi mà có thể chuyển trang hoặc hiển thị những phần được phân quyền để lấy data
+      // hoặc thông báo
+      // ví dụ: call 2 api, api nào get được data sẽ show component
+      // api nào trả về 401, hoặc 403 thì sẽ hiện noti hoặc không hiện dữ liệu chỗ call api đó, hoặc chuyển trang
+      // tuỳ vào nghiệp vụ của từng trang nha
+      // đã xong một là hiển thị theo component có thể gat được data
+      // hai là hiển thị thông báo rồi chuyển trang
+      // tùy nghiệp vụ sẽ xử lý cần thiết
+      //  return {
+      // redirect: {
+      //   permanent: false,
+      //   destination: "/401",
+      // },
+      //   props: {},
+      // };
     }
     return { props: { data, dataVendor } }
   }
@@ -197,6 +232,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       },
       props: {},
     };
+
 }
 
 export default Page

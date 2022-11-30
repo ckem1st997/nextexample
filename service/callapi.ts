@@ -1,12 +1,13 @@
 import { ResultMessageResponse } from "../model/ResultMessageResponse";
-import { VendorDTO } from "../model/VendorDTO";
+import { VendorDTO, WareHouseItemDTO } from "../model/VendorDTO";
 import axios from 'axios';
 import { showNotification } from '@mantine/notifications';
 import { UnitDTO } from './../model/UnitDTO';
 import ApiClient from './ApiClient';
 import { NextRequest } from 'next/server';
 import { GetServerSidePropsContext, NextApiRequest } from "next";
-var baseUrl = process.env.APIWAREHOUSE;
+import { baseUrlService } from "../extension/env";
+var baseUrl = process.env.APIWAREHOUSE??baseUrlService.baseUrlWareHouse;
 
 const dev = process.env.NODE_ENV !== 'production';
 export const server = dev ? 'http://localhost:3000' : 'https://your_deployment.server.com';
@@ -109,7 +110,6 @@ export class AxiosCustom {
     // Call an external API endpoint to get posts
     const res = await ApiClient(this.req).get(baseUrl + '/Unit/get-drop-tree?Active=true');
     const data = await res?.data as Promise<ResultMessageResponse<UnitDTO>>;
-
     return data;
   }
   async loadVendor(): Promise<ResultMessageResponse<VendorDTO>> {
@@ -120,11 +120,9 @@ export class AxiosCustom {
   }
 
 
-  async whItem(): Promise<ResultMessageResponse<VendorDTO>> {
-    // Call an external API endpoint to get posts
-    const res = await ApiClient(this.req).get(baseUrl + '/WareHouseItem/get-drop-tree?Active=true')
-
-    const data = await res?.data as Promise<ResultMessageResponse<VendorDTO>>;
+  async whItem(skip:number): Promise<ResultMessageResponse<WareHouseItemDTO>> {
+    const res = await ApiClient(this.req).get(baseUrl + '/WareHouseItem/get-list?Skip='+skip+'&Take=5')
+    const data = await res?.data as Promise<ResultMessageResponse<WareHouseItemDTO>>;
     return data;
   }
 

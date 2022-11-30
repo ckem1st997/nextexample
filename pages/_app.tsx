@@ -13,8 +13,11 @@ import { Session } from 'next-auth';
 import { RouterTransition } from '../component/RouterTransition';
 import { CookiesProvider } from 'react-cookie';
 import LayoutCustom from './../component/layoutcustom';
+import { ReactQueryDevtools } from "react-query/devtools";
 
-export default function App(props: AppProps<{ session: Session }>) {
+import { DehydratedState, Hydrate, QueryClient, QueryClientProvider } from "react-query";
+
+export default function App(props: AppProps<{ session: Session, dehydratedState: DehydratedState }>) {
   // const { Component, pageProps, router } = props;
   // let getLayout = ((page: any) => <LayoutPages>{page}</LayoutPages>);
   // axios.interceptors.response.use(
@@ -51,28 +54,29 @@ export default function App(props: AppProps<{ session: Session }>) {
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
 
-    ///
-    const [loading, setLoading] = useState(false);
-    useEffect(() => {
-      const start = () => {
-        console.log("start");
-        setLoading(true);
-      };
-      const end = () => {
-        console.log("finished");
-        setLoading(false);
-      };
-  
-      router.events.on('routeChangeStart', start);
-      router.events.on('routeChangeComplete', end);
-      router.events.on('routeChangeError', end);
-  
-      return () => {
-        router.events.off('routeChangeStart', start);
-        router.events.off('routeChangeComplete', end);
-        router.events.off('routeChangeError', end);
-      };
-    }, [router.asPath]);
+  ///
+  // const [loading, setLoading] = useState(false);
+  // useEffect(() => {
+  //   const start = () => {
+  //     console.log("start");
+  //     setLoading(true);
+  //   };
+  //   const end = () => {
+  //     console.log("finished");
+  //     setLoading(false);
+  //   };
+
+  //   router.events.on('routeChangeStart', start);
+  //   router.events.on('routeChangeComplete', end);
+  //   router.events.on('routeChangeError', end);
+
+  //   return () => {
+  //     router.events.off('routeChangeStart', start);
+  //     router.events.off('routeChangeComplete', end);
+  //     router.events.off('routeChangeError', end);
+  //   };
+  // }, [router.asPath]);
+  const [queryClient] = useState(() => new QueryClient());
   // phần hiển thị trên google sẽ show trong thẻ head
   // phần header và footer (nếu có) dự tính sẽ sử dụng client side rendering và dạng tĩnh, 
   // có cache để tránh call api nhiều lần
@@ -90,9 +94,14 @@ export default function App(props: AppProps<{ session: Session }>) {
           <NotificationsProvider position="top-center" zIndex={2077} autoClose={3000}>
             <SessionProvider session={session}>
               <CookiesProvider>
-                <Skeleton visible={loading}>
-                  {getLayout(<Component {...pageProps} />)}
-                </Skeleton>
+                {/* <Skeleton visible={loading}> */}
+                {/* <QueryClientProvider client={queryClient}>
+                  <Hydrate state={pageProps.dehydratedState}> */}
+                    {getLayout(<Component {...pageProps} />)}
+                    {/* <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools> */}
+                  {/* </Hydrate>
+                </QueryClientProvider> */}
+                {/* </Skeleton> */}
               </CookiesProvider>
             </SessionProvider>
           </NotificationsProvider>
