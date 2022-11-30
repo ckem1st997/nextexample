@@ -42,6 +42,22 @@ const useStyles = createStyles((theme) => ({
     borderTop: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[2]
       }`,
   },
+  header: {
+    position: 'fixed',
+    zIndex: 1000,
+  //  top: 0,
+    left: 0,
+   // right: 0,
+    bottom:0,
+    marginBottom:0,
+    height: 60,//transparent
+   // backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
+    backgroundColor: 'transparent',
+    borderBottom: `1px solid ${
+      theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[3]
+    }`,
+  },
+
 }));
 
 interface ArticleCardFooterProps {
@@ -102,9 +118,10 @@ function Page({ dataGet }: { dataGet: ResultMessageResponse<WareHouseItemDTO> })
     <>
       <Stack align="center">
         <Group position="center">
-          <Button onClick={() => { scrollTo({ y: 1000000 }) }}>Scroll to bottom</Button>
+          <Button onClick={() => { scrollTo({ y:Number.MAX_SAFE_INTEGER }) }}>Scroll to bottom</Button>
           <Button onClick={async () => {
-            const reset = await GetData(service, 0); setPosts(reset.data)
+            const reset = await GetData(service, 0); 
+            setPosts(reset.data);
           }
           }
           >Reset Data</Button>
@@ -180,9 +197,9 @@ function Page({ dataGet }: { dataGet: ResultMessageResponse<WareHouseItemDTO> })
           )}
 
         </div>
-        <Group position="center">
+        <Group position="center" className={classes.header}>
           <Button onClick={() => { scrollTo({ y: 0 }) }}>Scroll to top</Button>
-          <Button onClick={() => { scrollTo({ y: 0 }); setPosts([]) }}>Scroll to top and reset data</Button>
+          <Button onClick={() => {  setPosts([]) }}>Reset data</Button>
         </Group>
         {/* <InfiniteScroll
         dataLength={dataget?.totalCount * 20}
