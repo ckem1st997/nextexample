@@ -87,27 +87,27 @@ export default function App(props: AppProps<{ session: Session, dehydratedState:
   // chú ý phần các key phân quyền, sẽ check nếu key không hoạt động thì được phép truy cập, còn hoạt động thì mới check quyền
   return (
     <>
-      {/* <div dir="rtl" > */}
-      <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
-        <MantineProvider theme={{ colorScheme }} withNormalizeCSS withGlobalStyles >
-          <RouterTransition />
-          <NotificationsProvider position="top-center" zIndex={2077} autoClose={3000}>
-            <SessionProvider session={session}>
-              <CookiesProvider>
-                {/* <Skeleton visible={loading}> */}
-                {/* <QueryClientProvider client={queryClient}>
-                  <Hydrate state={pageProps.dehydratedState}> */}
-                    {getLayout(<Component {...pageProps} />)}
-                    {/* <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools> */}
-                  {/* </Hydrate>
-                </QueryClientProvider> */}
-                {/* </Skeleton> */}
-              </CookiesProvider>
-            </SessionProvider>
-          </NotificationsProvider>
-        </MantineProvider>
-      </ColorSchemeProvider>
-      {/* </div> */}
+      <div dir="rtl1" >
+        <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
+          <MantineProvider theme={{ colorScheme }} withNormalizeCSS withGlobalStyles >
+            <RouterTransition />
+            <NotificationsProvider position="top-center" zIndex={2077} autoClose={3000}>
+              <SessionProvider session={session}>
+                <CookiesProvider>
+                  {/* <Skeleton visible={loading}> */}
+                  <QueryClientProvider client={queryClient}>
+                    <Hydrate state={pageProps.dehydratedState}>
+                      {getLayout(<Component {...pageProps} />)}
+                      <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools> 
+                    </Hydrate>
+                  </QueryClientProvider>
+                  {/* </Skeleton> */}
+                </CookiesProvider>
+              </SessionProvider>
+            </NotificationsProvider>
+          </MantineProvider>
+        </ColorSchemeProvider>
+      </div>
     </>
   );
 }
