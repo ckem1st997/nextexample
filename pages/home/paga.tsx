@@ -10,6 +10,8 @@ import { WareHouseItemDTO } from "../../model/VendorDTO";
 import { ResultMessageResponse } from "../../model/ResultMessageResponse";
 import { AxiosCustom } from "../../service/callapi";
 import { useSession } from 'next-auth/react';
+import { MessageService } from './../../service/MessageService';
+import Error from "next/error";
 const useStyles = createStyles((theme) => ({
     card: {
         backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
@@ -47,15 +49,13 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export default function paginationSSR(props: DehydratedState) {
-    console.log(props)
     const { classes, theme } = useStyles();
     const { data: session } = useSession();
     const jwt = session as UserAuth;
     const service = new AxiosCustom(jwt?.jwt);
     const router = useRouter();
     const [page, setPage] = useState(parseInt(router.query.page?.toString() ?? "1") || 1);
-    console.log(page+":"+parseInt(router.query.page?.toString() ?? "1") || 1)
-    const { data } = useQuery(
+    const  data  = useQuery<ResultMessageResponse<WareHouseItemDTO>,Error>(
         ["getDataWHitem", parseInt(router.query.page?.toString() ?? "1") || 1],
         async () =>
         {
@@ -66,14 +66,25 @@ export default function paginationSSR(props: DehydratedState) {
             keepPreviousData: true,
             refetchOnMount: false,
             refetchOnWindowFocus: false,
-            staleTime:20000
-        }
+            staleTime:5000,
+            // time cache, sau 10s call api
+            cacheTime:10000,
+            // onError: (error:any) =>
+            // MessageService.Success("Lỗi xảy ra")
+        },
     );
     function handlePaginationChange(page: number) {
-        console.log(data)
-        // setPage(value);
         router.push(`paga/?page=${page}`, undefined, { shallow: true });
     }
+    if (data.isLoading) {
+        return 'Loading...'
+      }
+    
+      // ✅ standard error handling
+      // could also check for: todos.status === 'error'
+      if (data.isError) {
+        return 'An error occurred'
+      }
     return (
         <div className={classes.can} >
             <h1>
@@ -89,7 +100,7 @@ export default function paginationSSR(props: DehydratedState) {
             /> */}
             <Pagination onChange={handlePaginationChange} total={20} boundaries={1} initialPage={page} />
             <div className='grid-container'>
-                {data?.data.map((character: any) => (
+                {data.data?.data.map((character: any) => (
                     <article key={character.id}>
                         <p>{character.name}</p>
                     </article>

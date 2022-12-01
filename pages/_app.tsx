@@ -15,7 +15,8 @@ import { CookiesProvider } from 'react-cookie';
 import LayoutCustom from './../component/layoutcustom';
 import { ReactQueryDevtools } from "react-query/devtools";
 
-import { DehydratedState, Hydrate, QueryClient, QueryClientProvider } from "react-query";
+import { DehydratedState, Hydrate, MutationCache, QueryCache, QueryClient, QueryClientProvider } from "react-query";
+import { MessageService } from '../service/MessageService';
 
 export default function App(props: AppProps<{ session: Session, dehydratedState: DehydratedState }>) {
   // const { Component, pageProps, router } = props;
@@ -76,7 +77,33 @@ export default function App(props: AppProps<{ session: Session, dehydratedState:
   //     router.events.off('routeChangeError', end);
   //   };
   // }, [router.asPath]);
-  const [queryClient] = useState(() => new QueryClient());
+  // bắt lỗi toàn cầu cho chỗ nào sử dụng react-query
+  const [queryClient] = useState(() => new QueryClient({
+    
+    queryCache: new QueryCache({
+      onError: (error: any, query: any) => {
+        // 🎉 only show error toasts if we already have data in the cache
+        // which indicates a failed background update
+        // if (query.state.data !== undefined) {
+        MessageService.Fails(`Something went wrong: ${error.message}`)
+        //  }
+      },
+    }),
+    mutationCache: new MutationCache({
+      onError: (error: any, query: any) => {
+        // 🎉 only show error toasts if we already have data in the cache
+        // which indicates a failed background update
+        // if (query.state.data !== undefined) {
+        MessageService.Fails(`11111: ${error.message}`)
+        //  }
+      },
+    }),
+    defaultOptions:{
+      queries:{
+        retry:1
+      }
+    }
+  }))
   // phần hiển thị trên google sẽ show trong thẻ head
   // phần header và footer (nếu có) dự tính sẽ sử dụng client side rendering và dạng tĩnh, 
   // có cache để tránh call api nhiều lần
@@ -98,7 +125,7 @@ export default function App(props: AppProps<{ session: Session, dehydratedState:
                   <QueryClientProvider client={queryClient}>
                     <Hydrate state={pageProps.dehydratedState}>
                       {getLayout(<Component {...pageProps} />)}
-                      <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools> 
+                      <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools>
                     </Hydrate>
                   </QueryClientProvider>
                   {/* </Skeleton> */}
