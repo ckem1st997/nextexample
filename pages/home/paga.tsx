@@ -102,7 +102,7 @@ export default function paginationSSR(props: DehydratedState) {
             <div className='grid-container'>
                 {data.data?.data.map((character: any) => (
                     <article key={character.id}>
-                        <p>{character.name}</p>
+                        <p>{character.name}-{character.code}</p>
                     </article>
                 ))}
             </div>
