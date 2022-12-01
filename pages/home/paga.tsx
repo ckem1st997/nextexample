@@ -54,14 +54,19 @@ export default function paginationSSR(props: DehydratedState) {
     const service = new AxiosCustom(jwt?.jwt);
     const router = useRouter();
     const [page, setPage] = useState(parseInt(router.query.page?.toString() ?? "1") || 1);
+    console.log(page+":"+parseInt(router.query.page?.toString() ?? "1") || 1)
     const { data } = useQuery(
-        ["getDataWHitem", page],
+        ["getDataWHitem", parseInt(router.query.page?.toString() ?? "1") || 1],
         async () =>
-           await GetData(service,page),
+        {
+            const data = await GetData(service, parseInt(router.query.page?.toString() ?? "1") || 1)
+            return data;
+        },
         {
             keepPreviousData: true,
             refetchOnMount: false,
             refetchOnWindowFocus: false,
+            staleTime:20000
         }
     );
     function handlePaginationChange(page: number) {
@@ -116,8 +121,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     const queryClient = new QueryClient();
     await queryClient.prefetchQuery<ResultMessageResponse<WareHouseItemDTO>>(
         ["getDataWHitem", page],
-        async () =>
-            await GetData(service, page)
+        async () => {
+            const data = await GetData(service, page)
+            return data;
+        }
 
     );
     return { props: { dehydratedState: dehydrate(queryClient) } };
