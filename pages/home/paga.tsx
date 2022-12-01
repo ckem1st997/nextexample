@@ -48,17 +48,16 @@ const useStyles = createStyles((theme) => ({
 
 }));
 
-export default function paginationSSR(props: DehydratedState) {
+export default function paginationSSR() {
     const { classes, theme } = useStyles();
     const { data: session } = useSession();
     const jwt = session as UserAuth;
     const service = new AxiosCustom(jwt?.jwt);
     const router = useRouter();
     const [page, setPage] = useState(parseInt(router.query.page?.toString() ?? "1") || 1);
-    const  data  = useQuery<ResultMessageResponse<WareHouseItemDTO>,Error>(
+    const data = useQuery<ResultMessageResponse<WareHouseItemDTO>, Error>(
         ["getDataWHitem", parseInt(router.query.page?.toString() ?? "1") || 1],
-        async () =>
-        {
+        async () => {
             const data = await GetData(service, parseInt(router.query.page?.toString() ?? "1") || 1)
             return data;
         },
@@ -66,25 +65,26 @@ export default function paginationSSR(props: DehydratedState) {
             keepPreviousData: true,
             refetchOnMount: false,
             refetchOnWindowFocus: false,
-            staleTime:5000,
+            staleTime: 50000,
             // time cache, sau 10s call api
-            cacheTime:10000,
+            cacheTime: 10000,
             // onError: (error:any) =>
             // MessageService.Success("Lỗi xảy ra")
         },
     );
     function handlePaginationChange(page: number) {
+        setPage(page)
         router.push(`paga/?page=${page}`, undefined, { shallow: true });
     }
     if (data.isLoading) {
         return 'Loading...'
-      }
-    
-      // ✅ standard error handling
-      // could also check for: todos.status === 'error'
-      if (data.isError) {
+    }
+
+    // ✅ standard error handling
+    // could also check for: todos.status === 'error'
+    if (data.isError) {
         return 'An error occurred'
-      }
+    }
     return (
         <div className={classes.can} >
             <h1>
@@ -98,7 +98,9 @@ export default function paginationSSR(props: DehydratedState) {
                 page={page}
                 onChange={handlePaginationChange}
             /> */}
-            <Pagination onChange={handlePaginationChange} total={20} boundaries={1} initialPage={page} />
+            <Pagination onChange={handlePaginationChange} total={((data.data !== undefined ? data.data.totalCount: 5) / 5)+1 ?? 20} boundaries={1} page={page} initialPage={page} 
+            
+            />
             <div className='grid-container'>
                 {data.data?.data.map((character: any) => (
                     <article key={character.id}>
