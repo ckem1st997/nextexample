@@ -48,7 +48,7 @@ const useStyles = createStyles((theme) => ({
 
 }));
 
-export default function paginationSSR() {
+export default function PaginationSSR() {
     const { classes, theme } = useStyles();
     const { data: session } = useSession();
     const jwt = session as UserAuth;

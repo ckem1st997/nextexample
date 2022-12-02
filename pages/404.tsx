@@ -40,7 +40,6 @@ const useStyles = createStyles((theme) => ({
 
 export default function NotFoundImage() {
     const { classes } = useStyles();
-
     return (
         <Container className={classes.root}>
             <SimpleGrid spacing={80} cols={2} breakpoints={[{ maxWidth: 'sm', cols: 1, spacing: 40 }]}>

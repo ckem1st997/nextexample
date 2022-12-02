@@ -15,7 +15,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         const session = await unstable_getServerSession(req, res, authOptions);
         const service=new AxiosCustom(req);
       //  await globalAPICall(req, res, {POST,GET})
-        const result = await service.whItem();
+        const result = await service.whItem(0);
         if (result !== undefined) {
             res.status(200).end(JSON.stringify(result, null, 2))
         } else {

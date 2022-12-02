@@ -1,7 +1,7 @@
 import { Box, Button, Code, Divider, Grid, TextInput } from "@mantine/core";
 import { ResultMessageResponse } from "../../model/ResultMessageResponse";
 import { UnitDTO } from "../../model/UnitDTO";
-import { VendorDTO } from "../../model/VendorDTO";
+import { VendorDTO, WareHouseItemDTO } from "../../model/VendorDTO";
 import PageVendor from './../../component/vendor';
 import { showNotification, useNotifications } from '@mantine/notifications';
 import { useState } from "react";
@@ -16,6 +16,8 @@ import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { UserAuth } from "../../model/UserAuth";
 import { useRouter } from 'next/router';
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import service from "./service";
 
 
 function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; dataVendor: ResultMessageResponse<VendorDTO> }) {
@@ -26,7 +28,67 @@ function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; data
   //   MessageService.Fails("Có lỗi xảy ra, mã lỗi: !" + data.httpStatusCode);
   //   router.push('/401')
   // }
+  const service = new AxiosCustom("");
+  // get data from key getUnit
+  const dataget = useQuery<ResultMessageResponse<UnitDTO>, Error>(
+    ["getUnit"],
+    async () => {
+      console.log("useQuery")
 
+      const data = await service.loadUnit();
+      return data;
+    },
+    {
+      keepPreviousData: true,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      staleTime: 50000,
+      // time cache, sau 10s call api
+      cacheTime: 10000,
+      initialData:data
+      // onError: (error:any) =>
+      // MessageService.Success("Lỗi xảy ra")
+    },
+  );
+  const res = (async (values: any) => { return await show(values) });
+  const queryClient = useQueryClient();
+  // hiện đang check từ ngoài
+  // chạy hàm thêm, sửa, xóa
+
+  // setQueryData: chỉnh sửa dữ liệu có trong cache theo key trực tiếp
+  // ví dụ:
+  // Cancel any outgoing refetches
+  // hủy call api với key trong trường hợp đang thực hiện update, để tránh dữ liệu không đồng bộ
+  // await queryClient.cancelQueries({ queryKey: ['todos'] })
+
+  // lấy data từ cache
+  // const previousTodos = queryClient.getQueryData(['todos'])
+
+  // chỉnh sửa data trực tiếp trong cache
+  // queryClient.setQueryData(['todos'], old => [...old, newTodo])
+  const mutation = useMutation({
+    mutationFn: res,
+    onMutate: async (check: any) => {
+      await queryClient.cancelQueries({ queryKey: ['getUnit'] })
+      return { check }
+    },
+    // If the mutation fails,
+    // use the context returned from onMutate to roll back
+    onError: (err, newTodo, context) => {
+      //  queryClient.setQueryData(['getUnit'], context?.check)
+    },
+    // Always refetch after error or success:
+    onSettled: check => {
+      // console.log(check)    
+      //  queryClient.invalidateQueries({ queryKey: ['getUnit'] })
+    },
+    onSuccess: async data => {
+      console.log(data)
+      // thành công sẽ xóa data đi và call lại
+      if (data.success)
+        await queryClient.invalidateQueries({ queryKey: ['getUnit'] })
+    },
+  })
   const form = useForm({
     initialValues: {
       id: '',
@@ -48,9 +110,26 @@ function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; data
     <Grid>
       <Grid.Col span={6}>
         <Box sx={{ maxWidth: 400 }} mx="auto">
+          <p>{dataget.data?.data.length}</p>
           <form
-            onSubmit={form.onSubmit((values) =>
-              show(values))
+            onSubmit={
+              form.onSubmit(async (values) => {
+                //  console.log(dataget)
+                ///
+
+                // cache lại bằng tay
+                // const result = await show(values);
+                // console.log(result);
+                // if (result)
+                //   queryClient.invalidateQueries({ queryKey: ['getUnit'] })
+
+                //
+                var res = await mutation.mutateAsync(values)
+                   console.log(res)
+              }
+
+
+              )
             }
           >
             <TextInput
@@ -83,7 +162,7 @@ function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; data
 
             data.httpStatusCode === 200 ?
 
-              (data.data.map((item: UnitDTO) => (
+              (dataget.data?.data.map((item: UnitDTO, i: number) => (
                 <li key={item.id}>
                   <span>{item.id}</span>
                   <Divider my="sm" variant="dotted" />
@@ -111,15 +190,13 @@ function Page({ data, dataVendor }: { data: ResultMessageResponse<UnitDTO>; data
 
   )
 }
-function show(v: any) {
-  Service.CreateUnit(v).then(x => {
-    if (x.success)
-      MessageService.Success("Thêm thành công !");
-
-    else
-      MessageService.Fails("Thêm thất bại !");
-  });
-
+async function show(v: any): Promise<ResultMessageResponse<boolean>> {
+  const res = await Service.CreateUnit(v);
+  if (res.success)
+    MessageService.Success("Thêm thành công !");
+  else
+    MessageService.Fails(res.errors?.msg[0] ?? res.message);
+  return res;
 }
 
 function show403() {
