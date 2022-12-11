@@ -1,5 +1,5 @@
 import { useQuery, dehydrate, QueryClient, DehydratedState } from "react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { GetServerSidePropsContext } from "next";
 import { createStyles, Pagination } from "@mantine/core";
@@ -48,17 +48,39 @@ const useStyles = createStyles((theme) => ({
 
 }));
 
-export default function PaginationSSR() {
+export default function PaginationSSR(props: any) {
     const { classes, theme } = useStyles();
     const { data: session } = useSession();
     const jwt = session as UserAuth;
     const service = new AxiosCustom(jwt?.jwt);
     const router = useRouter();
-    const [page, setPage] = useState(parseInt(router.query.page?.toString() ?? "1") || 1);
+    const [page, setPage] = useState(props.page);
+    // if router change
+    useEffect(() => {
+        const handleStart = (url: any) => {
+            console.log("handleStart");
+        }
+
+        const handleComplete = (url: any) => {
+            console.log("handleComplete");
+            setPage(1);
+        }
+
+        router.events.on('routeChangeStart', handleStart)
+        router.events.on('routeChangeComplete', handleComplete)
+        router.events.on('routeChangeError', handleComplete)
+
+        return () => {
+            router.events.off('routeChangeStart', handleStart)
+            router.events.off('routeChangeComplete', handleComplete)
+            router.events.off('routeChangeError', handleComplete)
+        }
+    }, [])
+
     const data = useQuery<ResultMessageResponse<WareHouseItemDTO>, Error>(
-        ["getDataWHitem", parseInt(router.query.page?.toString() ?? "1") || 1],
+        ["getDataWHitem", page || 1],
         async () => {
-            const data = await GetData(service, parseInt(router.query.page?.toString() ?? "1") || 1)
+            const data = await GetData(service, page || 1)
             return data;
         },
         {
@@ -68,14 +90,42 @@ export default function PaginationSSR() {
             staleTime: 50000,
             // time cache, sau 10s call api
             cacheTime: 10000,
+            //   initialData: props.queries
             // onError: (error:any) =>
             // MessageService.Success("Lỗi xảy ra")
         },
     );
-    function handlePaginationChange(page: number) {
-        setPage(page)
-        router.push(`paga/?page=${page}`, undefined, { shallow: true });
+    function handlePaginationChange(pagenumber: number) {
+        setPage(pagenumber)
+        console.log(page)
+        //  router.push(`paga/?page=${page}`, undefined, { shallow: true });
     }
+
+
+    // const [page, setPage] = useState(parseInt(router.query.page?.toString() ?? "1") || 1);
+    // const data = useQuery<ResultMessageResponse<WareHouseItemDTO>, Error>(
+    //     ["getDataWHitem", parseInt(router.query.page?.toString() ?? "1") || 1],
+    //     async () => {
+    //         const data = await GetData(service, parseInt(router.query.page?.toString() ?? "1") || 1)
+    //         return data;
+    //     },
+    //     {
+    //         keepPreviousData: true,
+    //         refetchOnMount: false,
+    //         refetchOnWindowFocus: false,
+    //         staleTime: 50000,
+    //         // time cache, sau 10s call api
+    //         cacheTime: 10000,
+    //         // onError: (error:any) =>
+    //         // MessageService.Success("Lỗi xảy ra")
+    //     },
+    // );
+    // function handlePaginationChange(page: number) {
+    //     setPage(page)
+    //     router.push(`paga/?page=${page}`, undefined, { shallow: true });
+    // }
+
+
     if (data.isLoading) {
         return 'Loading...'
     }
@@ -88,18 +138,9 @@ export default function PaginationSSR() {
     return (
         <div className={classes.can} >
             <h1>
-                Rick and Morty with React Query and Pagination - Server Side rendered
+                React Query and Pagination - Server Side rendered
             </h1>
-            {/* <Pagination
-                count={data?.info.pages}
-                variant='outlined'
-                color='primary'
-                className='pagination'
-                page={page}
-                onChange={handlePaginationChange}
-            /> */}
-            <Pagination onChange={handlePaginationChange} total={((data.data !== undefined ? data.data.totalCount: 5) / 5)+1 ?? 20} boundaries={1} page={page} initialPage={page} 
-            
+            <Pagination onChange={handlePaginationChange} total={((data.data !== undefined ? data.data.totalCount : 5) / 5) + 1 ?? 20} boundaries={1} page={page} initialPage={page}
             />
             <div className='grid-container'>
                 {data.data?.data.map((character: any) => (
@@ -108,14 +149,6 @@ export default function PaginationSSR() {
                     </article>
                 ))}
             </div>
-            {/* <Pagination
-                count={data?.info.pages}
-                variant='outlined'
-                color='primary'
-                className='pagination'
-                page={page}
-                onChange={handlePaginationChange}
-            /> */}
         </div>
     );
 }
@@ -126,10 +159,10 @@ async function GetData(service: AxiosCustom, number: number) {
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const session = await unstable_getServerSession(context.req, context.res, authOptions) as UserAuth;
     debugger
-    let page = 1;
-    if (context.query.page) {
-        page = parseInt(context.query?.page as string);
-    }
+    const page = 1;
+    // if (context.query.page) {
+    //     page = parseInt(context.query?.page as string);
+    // }
     const service = new AxiosCustom(session?.jwt);
     const queryClient = new QueryClient();
     await queryClient.prefetchQuery<ResultMessageResponse<WareHouseItemDTO>>(
@@ -140,5 +173,5 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         }
 
     );
-    return { props: { dehydratedState: dehydrate(queryClient) } };
+    return { props: { dehydratedState: dehydrate(queryClient), page } };
 }
