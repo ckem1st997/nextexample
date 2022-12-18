@@ -78,6 +78,8 @@ export default function PaginationSSR(props: any) {
             router.events.off('routeChangeComplete', handleComplete)
             router.events.off('routeChangeError', handleComplete)
         }
+        // []: sẽ chạy duy nhất một lần vì mảng là không thay đổi
+        // có thể truyền state vào, khi state thay đổi thì useEffect sẽ run
     }, [])
 
     const data = useQuery<ResultMessageResponse<WareHouseItemDTO>, Error>(
