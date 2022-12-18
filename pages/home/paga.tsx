@@ -71,6 +71,9 @@ export default function PaginationSSR(props: any) {
         router.events.on('routeChangeError', handleComplete)
 
         return () => {
+            // khi thoát khỏi UI hiện tại thì trước khi thoát khỏi trang
+            //Hàm clean-up chạy trước khi component bị loại bỏ khỏi UI để tránh bị rò rỉ bộ nhớ
+
             router.events.off('routeChangeStart', handleStart)
             router.events.off('routeChangeComplete', handleComplete)
             router.events.off('routeChangeError', handleComplete)
