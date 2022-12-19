@@ -82,6 +82,18 @@ export default function PaginationSSR(props: any) {
         // có thể truyền state vào, khi state thay đổi thì useEffect sẽ run
     }, [])
 
+
+    //
+
+    // useEffect(() => {
+    //   console.log('useEffect'+page)
+
+    //      return () => {
+    //         setPage(1)
+    //      }
+    //     // []: sẽ chạy duy nhất một lần vì mảng là không thay đổi
+    //     // có thể truyền state vào, khi state thay đổi thì useEffect sẽ run
+    // }, [page])
     const data = useQuery<ResultMessageResponse<WareHouseItemDTO>, Error>(
         ["getDataWHitem", page || 1],
         async () => {

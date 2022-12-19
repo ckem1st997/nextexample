@@ -87,6 +87,8 @@ export default function AuthenticationTitle({ csrfToken, providers, url }: { csr
 
     }, [])
 
+
+
     useEffect(() => {
         // Prefetch the dashboard page
         router.prefetch(callbackUrl)
