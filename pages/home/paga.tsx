@@ -119,6 +119,7 @@ export default function PaginationSSR(props: any) {
     }
 
 
+    
     // const [page, setPage] = useState(parseInt(router.query.page?.toString() ?? "1") || 1);
     // const data = useQuery<ResultMessageResponse<WareHouseItemDTO>, Error>(
     //     ["getDataWHitem", parseInt(router.query.page?.toString() ?? "1") || 1],
